@@ -2,9 +2,10 @@ document.addEventListener("DOMContentLoaded", function() {
     console.log("DOM is loaded and custom Script is running");
 
     var body = document.body;
-    var darkModeButton = document.getElementById('darkModeButton');
+    var focusModeButton = document.getElementById('focusModeButton');
     var ChartCanvas = document.getElementById('myChart');
     var chartSelect = document.getElementById('chartSelect');
+    var closeButton = document.querySelector('.close-button');
 
     let jsonData;
     let myChart;
@@ -298,55 +299,37 @@ document.addEventListener("DOMContentLoaded", function() {
         loadChart(this.value);
     });
 
-    // Dark Mode toggle blijft zoals het is (werkt met chart.update())
-    darkModeButton.addEventListener('click', toggleDarkMode);
+    // Focus Mode toggle blijft zoals het is (werkt met chart.update())
+    focusModeButton.addEventListener('click', toggleFocusMode);
 
-    function toggleDarkMode() {
-        body.classList.toggle('dark-mode');
-    
-        if (body.classList.contains('dark-mode')) {
-            darkModeButton.textContent = '💙 Normal Mode';
-            document.querySelector('.container-right').style.transition = 'background-color 0.5s ease';
-            document.querySelector('.container-right').style.backgroundColor = '#333';
-            document.querySelector('button').style.transition = 'background-color 0.5s ease';
-            document.querySelector('button').style.backgroundColor = '#333';
-            document.querySelector('select').style.transition = 'border-color 0.5s ease, color 0.5s ease';
-            document.querySelector('select').style.borderColor = '#333';
-            document.querySelector('select').style.color = '#333';
-            document.querySelector('.background-image').style.transition = 'filter 0.5s ease';
-            document.querySelector('.background-image').style.filter = 'grayscale(100%)';
-            document.querySelector('.schoof-image').style.transition = 'filter 0.5s ease';
-            document.querySelector('.schoof-image').style.filter = 'grayscale(100%)';
-    
-            // ✅ Direct legend & ticks wit zetten
-            myChart.options.plugins.legend.labels.color = '#FFFFFF';
-            myChart.options.scales.x.ticks.color = '#FFFFFF';
-            myChart.options.scales.x.grid.color = '#FFFFFF';
-            myChart.options.scales.y.ticks.color = '#FFFFFF';
-            myChart.options.scales.y.grid.color = '#FFFFFF';
-            myChart.update();
-    
+    // Event listener voor close-button
+    closeButton.addEventListener('click', toggleFocusMode);
+
+    function toggleFocusMode() {
+        body.classList.toggle('focus-mode');
+        const containerLeft = document.querySelector('.container-left');
+        const containerRight = document.querySelector('.container-right');
+
+        if (body.classList.contains('focus-mode')) {
+            focusModeButton.textContent = '💙 Normal Mode';
+            closeButton.style.display = 'block'; // Maak de close-button zichtbaar
+
+            // Collapse container-left and expand container-right
+            containerLeft.classList.add('collapsed');
+            containerLeft.classList.remove('expanded');
+            containerLeft.style.width = ''; // Reset inline style to allow CSS transitions
+            containerRight.classList.add('expanded');
+            containerRight.classList.remove('collapsed');
         } else {
-            darkModeButton.textContent = '👀 Focus Mode';
-            document.querySelector('.container-right').style.transition = 'background-color 0.5s ease';
-            document.querySelector('.container-right').style.backgroundColor = '#154273';
-            document.querySelector('button').style.transition = 'background-color 0.5s ease';
-            document.querySelector('button').style.backgroundColor = '#154273';
-            document.querySelector('select').style.transition = 'border-color 0.5s ease, color 0.5s ease';
-            document.querySelector('select').style.borderColor = '#154273';
-            document.querySelector('select').style.color = '#154273';
-            document.querySelector('.background-image').style.transition = 'filter 0.5s ease';
-            document.querySelector('.background-image').style.filter = 'grayscale(0%)';
-            document.querySelector('.schoof-image').style.transition = 'filter 0.5s ease';
-            document.querySelector('.schoof-image').style.filter = 'grayscale(0%)';
-    
-            // ✅ Ook hier legend & ticks wit houden
-            myChart.options.plugins.legend.labels.color = '#FFFFFF';
-            myChart.options.scales.x.ticks.color = '#FFFFFF';
-            myChart.options.scales.x.grid.color = '#FFFFFF';
-            myChart.options.scales.y.ticks.color = '#FFFFFF';
-            myChart.options.scales.y.grid.color = '#FFFFFF';
-            myChart.update();
+            focusModeButton.textContent = '👀 Focus Mode';
+            closeButton.style.display = 'none'; // Verberg de close-button
+
+            // Reset container-left and container-right
+            containerLeft.classList.add('expanded');
+            containerLeft.classList.remove('collapsed');
+            containerLeft.style.width = ''; // Reset inline style to allow CSS transitions
+            containerRight.classList.add('collapsed');
+            containerRight.classList.remove('expanded');
         }
     }
 });

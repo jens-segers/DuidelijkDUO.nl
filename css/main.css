@@ -70,10 +70,26 @@ body {
 
 .container-left {
     height: 100%;
-    width: 20%;
+    width: 20%; /* Default width */
     padding-left: 10px;
     padding-right: 10px;
     background-color: white;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: width 0.5s ease, padding 0.5s ease;
+    box-sizing: border-box; /* Ensure consistent sizing */
+}
+
+.container-left.collapsed {
+    width: 0; /* Fully collapse */
+    padding: 0px;
+    overflow: hidden;
+}
+
+.container-left.expanded {
+    width: 20%; /* Fully expand */
+    padding-left: 10px;
+    padding-right: 10px;
     overflow-y: auto;
     overflow-x: hidden;
 }
@@ -85,6 +101,17 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative; /* Zorgt ervoor dat de .close-button relatief aan deze container wordt geplaatst */
+    transition: width 0.5s ease;
+}
+
+.container-right.collapsed {
+    width: 80%;
+}
+
+.container-right.expanded {
+    width: 100%;
+    transition: width 0.5s ease;
 }
 
 .schoof-image{
@@ -112,4 +139,21 @@ body {
 }
 .container-disclaimer{
     display: flex;    
+}
+
+.close-button {
+    width: 40px;
+    height: 40px;
+    color: #154273;
+    background-color: white;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0; /* Verwijder extra marges om positionering nauwkeurig te maken */
+    border-radius: 0 0 10px 0; /* Alleen rechtsonder een border-radius */
+    display: none; /* Verberg standaard de close-button */
+}
+
+.close-button:hover {
+    transform: 0;
 }
