@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DuidelijkDUO.nl - Inzichten in de openbare onderwijsdata</title>
+    <link rel="icon" type="image/x-icon" href="content/favicon.ico">
+    <!-- link CSS -->
+    <link rel="stylesheet" href="CSS/main.css">
+    <!-- link to the Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <!-- CONTAINER LEFT -->
+        <div class="container-left">
+            <div>
+                <center>
+                    <img src="content/logo.svg" class="logo-image">
+                    <img src="content/duotext.svg" class="duotext-image">
+                </center>
+            </div>
+            <!-- CONTAINER INFORMATION -->
+            <h1>Welkom op DuidelijkDUO.nl</h1>
+            <p>Deze website bevat een aantal grafieken die inzichten geven in de openbare data gepubliceerd door de Dienst Uitvoering Onderwijs (DUO).<br><br><i>*Deze website is op geen enkele wijze gelieerd aan, in samenwerking met, of ontwikkeld in opdracht van DUO of de Rijksoverheid. Het betreft een onafhankelijk project, opgezet in het kader van een schoolopdracht. Alle rechten met betrekking tot de gebruikte logo’s, lettertypen en ander materiaal dat verband houdt met de merken van DUO en de Rijksoverheid, blijven volledig eigendom van de respectievelijke rechthebbenden.</i></p>
+            <select id="chartSelect" style="margin-bottom: 5px;">
+                <option value="totalPerYear">Totaal per jaar</option>
+                <option value="studentsPerProvince">Studenten per provincie</option>
+                <option value="genderDistribution">Geslachtsverdeling PABO</option>
+                <option value="specificCourseTrend">B Commerciële Economie trend</option>
+                <option value="educationForm">Voltijd vs Deeltijd</option>
+            </select>
+            <br>
+            <button id="darkModeButton">👀 Focus Mode</button>
+            <br>
+            <br>
+        </div>
+        <!-- CONTAINER RIGHT-->
+        <div class="container-right">
+            <!-- CONTAINER GRAPHS -->
+            <canvas id="myChart"></canvas>
+        </div>
+    </div>
+    <div class="background-image"></div>
+</body>
+<!-- link to the custom JS -->
+<script src="script.js"></script>
+
+</html>

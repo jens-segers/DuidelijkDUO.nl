@@ -1,0 +1,122 @@
+@font-face {
+    font-family: 'RijksoverheidSans-Bold';
+    src: url('../fonts/ROsanswebtextbold.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'RijksoverheidSans-Italic';
+    src: url('../fonts/ROsanswebtextitalic.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'RijksoverheidSans-Regular';
+    src: url('../fonts/ROsanswebtextregular.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'RijksoverheidSerif-Italic';
+    src: url('../fonts/ROserifwebitalic.woff') format('woff');
+}
+
+body {
+    display: flex;
+    margin: 0px;
+}
+
+h1 {
+    font-family: RijksoverheidSans-Bold;
+}
+
+i {
+    font-family: RijksoverheidSans-Italic;
+}
+
+p {
+    font-family: RijksoverheidSans-Regular;
+}
+
+button {
+    color: white;
+    font-family: RijksoverheidSans-Bold;
+    background-color: #154273;
+    padding: 11px;
+    border: 0px;
+    transition: transform 0.2s ease;
+}
+
+button:hover {
+    transform: translateY(-3px);
+    cursor: pointer;
+}
+
+select {
+    font-family: RijksoverheidSans-Regular;
+    color: #154273;
+    background-color: white;
+    padding: 10px;
+    border: 1px solid #154273;
+    transition: transform 0.2s ease;
+}
+
+select:hover {
+    transform: translateY(-3px);
+    cursor: pointer;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+}
+
+/* achtergrond kleuren weghalen en widths goed zetten | van 50% -> wens */
+.container {
+    width: 80vw;
+    height: 80vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    margin: auto;
+    border: 5px solid white;
+    border-radius: 10px;
+}
+
+.container-left {
+    height: 100%;
+    width: 20%;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: white;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.container-right {
+    height: 100%;
+    width: 80%;
+    background-color: #154273;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo-image{
+    width: 45px;
+    height: 90px;
+    background-color: #154273;
+}
+.duotext-image{
+    width: 173px;
+    height: 45px;
+    margin: 5px;
+}
+.background-image{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: url('../content/background.svg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    z-index: -1;
+}
