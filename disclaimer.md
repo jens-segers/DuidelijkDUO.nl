@@ -1,0 +1,1 @@
+<p><i>*Deze website is op geen enkele wijze gelieerd aan, in samenwerking met, of ontwikkeld in opdracht van DUO of de Rijksoverheid. Het betreft een onafhankelijk project, opgezet in het kader van een schoolopdracht.</i></p>
