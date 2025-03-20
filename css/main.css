@@ -144,16 +144,26 @@ body {
 .close-button {
     width: 40px;
     height: 40px;
-    color: #154273;
-    background-color: white;
+    color: white;
+    background-color: #154273;
     position: absolute;
-    top: 0;
-    left: 0;
-    margin: 0; /* Verwijder extra marges om positionering nauwkeurig te maken */
-    border-radius: 0 0 10px 0; /* Alleen rechtsonder een border-radius */
-    display: none; /* Verberg standaard de close-button */
+    top: 10px;
+    right: 10px;
+    margin: 0;
+    border-radius: 50%; /* Make it circular */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    z-index: 10; /* Ensure it stays on top */
 }
 
 .close-button:hover {
-    transform: 0;
+    background-color: #0d2a4a;
+    transform: scale(1.1); /* Slightly enlarge on hover */
+}
+
+.close-button i {
+    font-size: 16px;
 }

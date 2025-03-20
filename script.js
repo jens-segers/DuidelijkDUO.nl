@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var focusModeButton = document.getElementById('focusModeButton');
     var ChartCanvas = document.getElementById('myChart');
     var chartSelect = document.getElementById('chartSelect');
-    var closeButton = document.querySelector('.close-button');
+    const fullscreenButton = document.querySelector('.close-button'); // Renamed for clarity
 
     let jsonData;
     let myChart;
@@ -299,35 +299,31 @@ document.addEventListener("DOMContentLoaded", function() {
         loadChart(this.value);
     });
 
-    // Focus Mode toggle blijft zoals het is (werkt met chart.update())
-    focusModeButton.addEventListener('click', toggleFocusMode);
-
-    // Event listener voor close-button
-    closeButton.addEventListener('click', toggleFocusMode);
+    // Event listener voor fullscreen-button
+    fullscreenButton.addEventListener('click', toggleFocusMode);
 
     function toggleFocusMode() {
         body.classList.toggle('focus-mode');
         const containerLeft = document.querySelector('.container-left');
         const containerRight = document.querySelector('.container-right');
+        const fullscreenIcon = fullscreenButton.querySelector('i');
 
         if (body.classList.contains('focus-mode')) {
-            focusModeButton.textContent = '💙 Normal Mode';
-            closeButton.style.display = 'block'; // Maak de close-button zichtbaar
+            fullscreenIcon.classList.remove('fa-expand');
+            fullscreenIcon.classList.add('fa-compress');
 
             // Collapse container-left and expand container-right
             containerLeft.classList.add('collapsed');
             containerLeft.classList.remove('expanded');
-            containerLeft.style.width = ''; // Reset inline style to allow CSS transitions
             containerRight.classList.add('expanded');
             containerRight.classList.remove('collapsed');
         } else {
-            focusModeButton.textContent = '👀 Focus Mode';
-            closeButton.style.display = 'none'; // Verberg de close-button
+            fullscreenIcon.classList.remove('fa-compress');
+            fullscreenIcon.classList.add('fa-expand');
 
             // Reset container-left and container-right
             containerLeft.classList.add('expanded');
             containerLeft.classList.remove('collapsed');
-            containerLeft.style.width = ''; // Reset inline style to allow CSS transitions
             containerRight.classList.add('collapsed');
             containerRight.classList.remove('expanded');
         }
