@@ -308,8 +308,6 @@ document.addEventListener("DOMContentLoaded", function() {
             darkModeButton.textContent = '💙 Normal Mode';
             document.querySelector('.container-right').style.transition = 'background-color 0.5s ease';
             document.querySelector('.container-right').style.backgroundColor = '#333';
-            document.querySelector('.logo-image').style.transition = 'background-color 0.5s ease';
-            document.querySelector('.logo-image').style.backgroundColor = '#333';
             document.querySelector('button').style.transition = 'background-color 0.5s ease';
             document.querySelector('button').style.backgroundColor = '#333';
             document.querySelector('select').style.transition = 'border-color 0.5s ease, color 0.5s ease';
@@ -317,6 +315,8 @@ document.addEventListener("DOMContentLoaded", function() {
             document.querySelector('select').style.color = '#333';
             document.querySelector('.background-image').style.transition = 'filter 0.5s ease';
             document.querySelector('.background-image').style.filter = 'grayscale(100%)';
+            document.querySelector('.schoof-image').style.transition = 'filter 0.5s ease';
+            document.querySelector('.schoof-image').style.filter = 'grayscale(100%)';
     
             // ✅ Direct legend & ticks wit zetten
             myChart.options.plugins.legend.labels.color = '#FFFFFF';
@@ -330,8 +330,6 @@ document.addEventListener("DOMContentLoaded", function() {
             darkModeButton.textContent = '👀 Focus Mode';
             document.querySelector('.container-right').style.transition = 'background-color 0.5s ease';
             document.querySelector('.container-right').style.backgroundColor = '#154273';
-            document.querySelector('.logo-image').style.transition = 'background-color 0.5s ease';
-            document.querySelector('.logo-image').style.backgroundColor = '#154273';
             document.querySelector('button').style.transition = 'background-color 0.5s ease';
             document.querySelector('button').style.backgroundColor = '#154273';
             document.querySelector('select').style.transition = 'border-color 0.5s ease, color 0.5s ease';
@@ -339,6 +337,8 @@ document.addEventListener("DOMContentLoaded", function() {
             document.querySelector('select').style.color = '#154273';
             document.querySelector('.background-image').style.transition = 'filter 0.5s ease';
             document.querySelector('.background-image').style.filter = 'grayscale(0%)';
+            document.querySelector('.schoof-image').style.transition = 'filter 0.5s ease';
+            document.querySelector('.schoof-image').style.filter = 'grayscale(0%)';
     
             // ✅ Ook hier legend & ticks wit houden
             myChart.options.plugins.legend.labels.color = '#FFFFFF';

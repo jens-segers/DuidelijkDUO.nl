@@ -1,43 +1,31 @@
-@font-face {
-    font-family: 'RijksoverheidSans-Bold';
-    src: url('../fonts/ROsanswebtextbold.woff') format('woff');
-}
-
-@font-face {
-    font-family: 'RijksoverheidSans-Italic';
-    src: url('../fonts/ROsanswebtextitalic.woff') format('woff');
-}
-
-@font-face {
-    font-family: 'RijksoverheidSans-Regular';
-    src: url('../fonts/ROsanswebtextregular.woff') format('woff');
-}
-
-@font-face {
-    font-family: 'RijksoverheidSerif-Italic';
-    src: url('../fonts/ROserifwebitalic.woff') format('woff');
-}
-
 body {
     display: flex;
     margin: 0px;
 }
 
 h1 {
-    font-family: RijksoverheidSans-Bold;
-}
-
-i {
-    font-family: RijksoverheidSans-Italic;
+    font-family: "Bebas Neue", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 42px;
+    margin: 0px;
 }
 
 p {
-    font-family: RijksoverheidSans-Regular;
+    font-family: "Inter", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    margin: 0px;
+}
+
+a {
+    color: #154273;
 }
 
 button {
     color: white;
-    font-family: RijksoverheidSans-Bold;
+    font-family: "Inter";
+    font-weight: 700;
     background-color: #154273;
     padding: 11px;
     border: 0px;
@@ -50,7 +38,8 @@ button:hover {
 }
 
 select {
-    font-family: RijksoverheidSans-Regular;
+    font-family: "Inter";
+    font-weight: 700;
     color: #154273;
     background-color: white;
     padding: 10px;
@@ -68,7 +57,6 @@ body {
     height: 100vh;
 }
 
-/* achtergrond kleuren weghalen en widths goed zetten | van 50% -> wens */
 .container {
     width: 80vw;
     height: 80vh;
@@ -99,16 +87,18 @@ body {
     align-items: center;
 }
 
-.logo-image{
-    width: 45px;
-    height: 90px;
-    background-color: #154273;
+.schoof-image{
+    width: 50%;
+    margin: 0px;
+    margin-top: 10px;
 }
+
 .duotext-image{
     width: 173px;
     height: 45px;
     margin: 5px;
 }
+
 .background-image{
     position: fixed;
     top: 0;
@@ -119,4 +109,7 @@ body {
     background-size: cover;
     background-repeat: no-repeat;
     z-index: -1;
+}
+.container-disclaimer{
+    display: flex;    
 }
