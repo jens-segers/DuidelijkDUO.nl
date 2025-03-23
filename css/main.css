@@ -10,12 +10,14 @@ h1 {
     font-family: "Bebas Neue", sans-serif;
     font-weight: 400;
     font-style: normal;
-    font-size: 42px;
+    font-size: 260%;
+    border-bottom: 1px solid #154273;
     margin: 0px;
 }
 
 p {
     margin: 0px;
+    padding-top: 10px;
 }
 
 a {
@@ -201,6 +203,12 @@ body {
     font-size: 16px;
 }
 
+@media (min-width: 769px) and (max-width: 1385px) {
+    h1 {
+        font-size: 150%; /* Verklein de tekst op mobiele apparaten */
+    }
+}
+
 @media (max-width: 768px) {
     .container {
         flex-direction: column; /* Stack containers vertically */
@@ -217,10 +225,6 @@ body {
         margin: 0px; /* Remove any extra margins */
         box-sizing: border-box; /* Ensure consistent sizing */
         overflow: hidden;
-    }
-
-    .container-right canvas {
-        height: 100%; /* Ensure the canvas fills the height of the container */
     }
 
     .close-button {
