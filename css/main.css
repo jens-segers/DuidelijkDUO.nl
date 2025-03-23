@@ -98,6 +98,7 @@ body {
 .container-left {
     height: 100%;
     width: 20%; /* Default width */
+    width: calc(20% - 5px); /* Adjust width to ensure even spacing */
     padding-left: 10px;
     padding-right: 10px;
     background-color: white;
@@ -124,6 +125,7 @@ body {
 .container-right {
     height: 100%;
     width: 80%;
+    width: calc(80% - 5px); /* Adjust width to ensure even spacing */
     background-color: #154273;
     display: flex;
     justify-content: center;
@@ -193,4 +195,35 @@ body {
 
 .close-button i {
     font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column; /* Stack containers vertically */
+        width: 100vw; /* Full width for mobile */
+        height: auto; /* Allow height to adjust */
+        border: none; /* Remove border on mobile */
+    }
+
+    .container-left {
+        width: 100%; /* Full width for the left container */
+        height: auto; /* Adjust height automatically */
+        padding: 10px; /* Add padding for better spacing */
+        overflow: hidden; /* Schakel scrollen uit */
+    }
+
+    .container-right {
+        width: 100%; /* Full width for the right container */
+        height: auto; /* Adjust height automatically */
+        padding: 10px; /* Add padding for better spacing */
+    }
+
+    .close-button {
+        display: none; /* Hide the close button on mobile */
+    }
+
+    .schoof-image {
+        width: 30%; /* Smaller image for mobile */
+        margin: 0; /* Remove extra margins */
+    }
 }
