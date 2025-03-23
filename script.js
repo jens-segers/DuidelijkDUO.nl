@@ -188,9 +188,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-
         myChart = new Chart(chartCanvas, {
-            type: 'bar',
+            type: 'line', // Ensure this is a line chart
             data: {
                 labels: Object.keys(total),
                 datasets: [{
@@ -198,32 +197,35 @@ document.addEventListener("DOMContentLoaded", function () {
                     data: Object.values(total),
                     backgroundColor: 'rgba(255, 255, 255, 0.4)',
                     borderColor: 'rgb(255, 255, 255)',
-                    borderWidth: 1
+                    borderWidth: 1,
+                    tension: 0.1 // Smooth the line
                 }]
             },
             options: {
+                responsive: true, // Ensure the chart resizes dynamically
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         labels: {
                             color: '#FFFFFF'
                         }
-                    },
-                    scales: {
-                        x: {
-                            ticks: {
-                                color: '#FFFFFF'
-                            },
-                            grid: {
-                                color: '#FFFFFF'
-                            }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#FFFFFF'
                         },
-                        y: {
-                            ticks: {
-                                color: '#FFFFFF'
-                            },
-                            grid: {
-                                color: '#FFFFFF'
-                            }
+                        grid: {
+                            color: '#FFFFFF'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#FFFFFF'
+                        },
+                        grid: {
+                            color: '#FFFFFF'
                         }
                     }
                 }

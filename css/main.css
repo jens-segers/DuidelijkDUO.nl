@@ -28,7 +28,6 @@ a {
     justify-content: space-between;
     padding: 10px;
     background-color: white;
-    border-bottom: 1px solid #154273;
 }
 
 .controls {
@@ -36,7 +35,7 @@ a {
     flex-direction: column;
     box-sizing: border-box;
     justify-content: space-between;
-    padding: 10px;
+    padding: 10px 0;
     background-color: white;
     border-bottom: 1px solid #154273;
 }
@@ -57,6 +56,7 @@ button:hover {
 }
 
 select {
+    font-family: "Inter";
     font-weight: 700;
     color: #154273;
     background-color: white;
@@ -205,7 +205,7 @@ body {
     .container {
         flex-direction: column; /* Stack containers vertically */
         width: 100vw; /* Full width for mobile */
-        height: 100vh; /* Ensure full viewport height */
+        height: auto; /* Ensure full viewport height */
         border: none; /* Remove border on mobile */
     }
 
@@ -217,6 +217,10 @@ body {
         margin: 0px; /* Remove any extra margins */
         box-sizing: border-box; /* Ensure consistent sizing */
         overflow: hidden;
+    }
+
+    .container-right canvas {
+        height: 100%; /* Ensure the canvas fills the height of the container */
     }
 
     .close-button {
