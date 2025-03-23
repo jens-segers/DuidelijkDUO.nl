@@ -269,7 +269,6 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             fullscreenIcon.classList.remove('fa-compress');
             fullscreenIcon.classList.add('fa-expand');
-
             containerLeft.classList.add('expanded');
             containerLeft.classList.remove('collapsed');
             containerRight.classList.add('collapsed');

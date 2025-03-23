@@ -63,7 +63,7 @@ select {
     padding: 10px;
     border: 1px solid #154273;
     transition: transform 0.2s ease;
-    width: min(98%, 200px);
+    width: 95%;
     margin: .2rem;
     border-radius: 5px;
     box-sizing: border-box;
@@ -98,14 +98,12 @@ body {
 .container-left {
     height: 100%;
     width: 20%; /* Default width */
-    width: calc(20% - 5px); /* Adjust width to ensure even spacing */
     padding-left: 10px;
     padding-right: 10px;
     background-color: white;
     overflow-y: auto;
     overflow-x: hidden;
     transition: width 0.5s ease, padding 0.5s ease;
-    box-sizing: border-box; /* Ensure consistent sizing */
 }
 
 .container-left.collapsed {
@@ -141,6 +139,12 @@ body {
 .container-right.expanded {
     width: 100%;
     transition: width 0.5s ease;
+}
+
+.container-right canvas {
+    width: 100%; /* Ensure the canvas fills the width of the container */
+    height: 100%; /* Ensure the canvas fills the height of the container */
+    box-sizing: border-box; /* Maintain consistent sizing */
 }
 
 .schoof-image{
@@ -201,21 +205,18 @@ body {
     .container {
         flex-direction: column; /* Stack containers vertically */
         width: 100vw; /* Full width for mobile */
-        height: auto; /* Allow height to adjust */
+        height: 100vh; /* Ensure full viewport height */
         border: none; /* Remove border on mobile */
     }
 
-    .container-left {
-        width: 100%; /* Full width for the left container */
-        height: auto; /* Adjust height automatically */
-        padding: 10px; /* Add padding for better spacing */
-        overflow: hidden; /* Schakel scrollen uit */
-    }
-
+    .container-left,
     .container-right {
-        width: 100%; /* Full width for the right container */
-        height: auto; /* Adjust height automatically */
+        width: 100%; /* Ensure both containers are the same width */
+        height: auto; /* Each container takes half the viewport height */
         padding: 10px; /* Add padding for better spacing */
+        margin: 0px; /* Remove any extra margins */
+        box-sizing: border-box; /* Ensure consistent sizing */
+        overflow: hidden;
     }
 
     .close-button {
