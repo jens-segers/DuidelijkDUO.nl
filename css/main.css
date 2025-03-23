@@ -33,7 +33,6 @@ a {
     flex-direction: column;
     justify-content: space-between;
     padding: 10px;
-    background-color: white;
 }
 
 .controls {
@@ -42,7 +41,6 @@ a {
     box-sizing: border-box;
     justify-content: space-between;
     padding: 10px 0;
-    background-color: white;
     border-bottom: 1px solid #154273;
 }
 
@@ -51,7 +49,7 @@ button {
     font-family: "Inter";
     font-weight: 700;
     background-color: #00000000;
-    padding: 11px;
+    padding: 10px;
     border: 0px;
     border-radius: 50%; /* Make circular buttons possible */
     display: flex;
@@ -67,6 +65,10 @@ button {
     height: 40px; /* Default size for circular buttons */
 }
 
+button.light-dark-toggle {
+    right: 50px; /* Position next to the fullscreen button */
+}
+
 button:hover {
     transform: scale(1.1); /* Slightly enlarge on hover */
     background-color: #0d2a4a;
@@ -80,7 +82,6 @@ select {
     font-family: "Inter";
     font-weight: 700;
     color: #154273;
-    background-color: white;
     padding: 10px;
     border: 1px solid #154273;
     transition: transform 0.2s ease;
@@ -224,7 +225,7 @@ body {
         overflow: hidden;
     }
 
-    .close-button {
+    .fullscreen-button {
         display: none; /* Hide the close button on mobile */
     }
 

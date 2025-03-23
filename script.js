@@ -8,7 +8,8 @@ document.addEventListener("DOMContentLoaded", function () {
     var educationSelect = document.getElementById('educationSelect');
     var yearSelect = document.getElementById('yearSelect');
 
-    const fullscreenButton = document.querySelector('.close-button');
+    const fullscreenButton = document.querySelector('.fullscreen-button');
+    const lightDarkToggle = document.querySelector('.light-dark-toggle');
 
     let jsonData;
     let myChart;
@@ -139,13 +140,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Bereken het aantal mannen en vrouwen
         const genderCounts = filteredData.reduce((acc, entry) => {
-            acc[entry.GESLACHT] = (acc[entry.GESLACHT] || 0) + 1;
+            const yearValue = year ? entry[year] : 1; // Use the year value if provided, otherwise count as 1
+            if (entry.GESLACHT) {
+                acc[entry.GESLACHT] = (acc[entry.GESLACHT] || 0) + yearValue;
+            }
             return acc;
         }, {});
 
-        const total = genderCounts['man'] + genderCounts['vrouw'];
-        const malePercentage = ((genderCounts['man'] / total) * 100).toFixed(1); // Percentage mannen
-        const femalePercentage = ((genderCounts['vrouw'] / total) * 100).toFixed(1); // Percentage vrouwen
+        const total = (genderCounts['man'] || 0) + (genderCounts['vrouw'] || 0);
+        const malePercentage = total > 0 ? ((genderCounts['man'] || 0) / total * 100).toFixed(1) : 0; // Percentage mannen
+        const femalePercentage = total > 0 ? ((genderCounts['vrouw'] || 0) / total * 100).toFixed(1) : 0; // Percentage vrouwen
 
         // Maak de cirkeldiagram
         myChart = new Chart(chartCanvas, {
@@ -154,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 labels: ['Man', 'Vrouw'],
                 datasets: [{
                     label: 'Geslachtsverdeling',
-                    data: [genderCounts['man'], genderCounts['vrouw']],
+                    data: [genderCounts['man'] || 0, genderCounts['vrouw'] || 0],
                     backgroundColor: ['rgba(54, 162, 235, 0.4)', 'rgba(255, 99, 132, 0.4)'],
                     borderColor: ['rgb(54, 162, 235)', 'rgb(255, 99, 132)'],
                     borderWidth: 1
@@ -172,7 +176,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         callbacks: {
                             label: function (context) {
                                 const value = context.raw;
-                                const percentage = ((value / total) * 100).toFixed(1);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
                                 return `${context.label}: ${value} (${percentage}%)`;
                             }
                         }
@@ -311,14 +315,17 @@ document.addEventListener("DOMContentLoaded", function () {
     fullscreenButton.addEventListener('click', toggleFocusMode);
 
     function toggleFocusMode() {
-        body.classList.toggle('focus-mode');
+        body.classList.toggle('fullscreen-mode');
         const containerLeft = document.querySelector('.container-left');
         const containerRight = document.querySelector('.container-right');
         const fullscreenIcon = fullscreenButton.querySelector('i');
 
-        if (body.classList.contains('focus-mode')) {
+        if (body.classList.contains('fullscreen-mode')) {
             fullscreenIcon.classList.remove('fa-expand');
             fullscreenIcon.classList.add('fa-compress');
+
+            containerLeft.style.transition = 'width 0.5s ease, padding 0.5s ease'; // Ensure independent transition
+            containerRight.style.transition = 'width 0.5s ease';
 
             containerLeft.classList.add('collapsed');
             containerLeft.classList.remove('expanded');
@@ -327,10 +334,91 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             fullscreenIcon.classList.remove('fa-compress');
             fullscreenIcon.classList.add('fa-expand');
+
+            containerLeft.style.transition = 'width 0.5s ease, padding 0.5s ease'; // Ensure independent transition
+            containerRight.style.transition = 'width 0.5s ease';
+
             containerLeft.classList.add('expanded');
             containerLeft.classList.remove('collapsed');
             containerRight.classList.add('collapsed');
             containerRight.classList.remove('expanded');
         }
     }
+
+    // Utility function to set a cookie
+    function setCookie(name, value, days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/`;
+    }
+
+    // Utility function to get a cookie
+    function getCookie(name) {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(`${name}=`)) {
+                return cookie.substring(name.length + 1);
+            }
+        }
+        return null;
+    }
+
+    // Load the saved mode from the cookie
+    const savedMode = getCookie('theme');
+    if (savedMode === 'dark') {
+        document.body.classList.add('dark-mode');
+        lightDarkToggle.querySelector('i').classList.remove('fa-moon');
+        lightDarkToggle.querySelector('i').classList.add('fa-sun');
+
+        // Apply dark mode styles dynamically on page load
+        const elementsToStyle = [
+            { selector: 'body', styles: { backgroundColor: '#121212', color: '#ffffff', transition: 'background-color 0.5s, color 0.5s' } },
+            { selector: '.container-left', styles: { backgroundColor: '#1e1e1e', transition: 'background-color 0.5s' } },
+            { selector: '.container-right', styles: { backgroundColor: '#0c2744', transition: 'background-color 0.5s' } },
+            { selector: 'select', styles: { backgroundColor: '#2a2a2a', color: '#ffffff', borderColor: '#444444', transition: 'background-color 0.5s, color 0.5s, border-color 0.5s' } },
+            { selector: '.container', styles: { borderColor: '#2a2a2a', transition: 'border-color 0.5s' } },
+            { selector: 'a', styles: { color: '#ffffff', transition: 'color 0.5s' } },
+            { selector: '.background-image', styles: { filter: 'brightness(0.7)', transition: 'filter 0.5s' } }, // Apply filter to the background image
+        ];
+
+        elementsToStyle.forEach(({ selector, styles }) => {
+            document.querySelectorAll(selector).forEach(element => {
+                Object.assign(element.style, styles);
+            });
+        });
+    }
+
+    lightDarkToggle.addEventListener('click', function () {
+        const isDarkMode = document.body.classList.toggle('dark-mode');
+        const icon = lightDarkToggle.querySelector('i');
+
+        // Toggle icon between moon and sun
+        if (isDarkMode) {
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+            setCookie('theme', 'dark', 30); // Save dark mode preference for 30 days
+        } else {
+            icon.classList.remove('fa-sun');
+            icon.classList.add('fa-moon');
+            setCookie('theme', 'light', 30); // Save light mode preference for 30 days
+        }
+
+        // Apply dark mode styles dynamically
+        const elementsToStyle = [
+            { selector: 'body', styles: { backgroundColor: isDarkMode ? '#121212' : '', color: isDarkMode ? '#ffffff' : '', transition: 'background-color 0.5s, color 0.5s' } },
+            { selector: '.container-left', styles: { backgroundColor: isDarkMode ? '#1e1e1e' : '', transition: 'background-color 0.5s' } },
+            { selector: '.container-right', styles: { backgroundColor: isDarkMode ? '#0c2744' : '', transition: 'background-color 0.5s' } },
+            { selector: 'select', styles: { backgroundColor: isDarkMode ? '#2a2a2a' : '', color: isDarkMode ? '#ffffff' : '', borderColor: isDarkMode ? '#444444' : '', transition: 'background-color 0.5s, color 0.5s, border-color 0.5s' } },
+            { selector: '.container', styles: { borderColor: isDarkMode ? '#2a2a2a' : '', transition: 'border-color 0.5s' } },
+            { selector: 'a', styles: { color: isDarkMode ? '#ffffff' : '', transition: 'color 0.5s' } },
+            { selector: '.background-image', styles: { filter: isDarkMode ? 'brightness(0.7)' : '', transition: 'filter 0.5s' } }, // Apply filter to the background image
+        ];
+
+        elementsToStyle.forEach(({ selector, styles }) => {
+            document.querySelectorAll(selector).forEach(element => {
+                Object.assign(element.style, styles);
+            });
+        });
+    });
 });
