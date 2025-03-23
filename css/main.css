@@ -59,10 +59,13 @@ button {
     transition: background-color 0.3s ease, transform 0.2s ease;
     position: absolute; /* For buttons like the close button */
     top: 10px; /* Position for close button */
-    right: 10px; /* Position for close button */
     z-index: 10; /* Ensure it stays on top */
     width: 40px; /* Default size for circular buttons */
     height: 40px; /* Default size for circular buttons */
+}
+
+button.fullscreen-button {
+    right: 10px; /* Position in the top right corner */
 }
 
 button.light-dark-toggle {
