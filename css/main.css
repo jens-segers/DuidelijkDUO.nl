@@ -6,6 +6,10 @@ body {
     font-style: normal;
 }
 
+#myChart {
+    padding: 30px;
+}
+
 h1 {
     font-family: "Bebas Neue", sans-serif;
     font-weight: 400;
@@ -46,15 +50,30 @@ button {
     color: white;
     font-family: "Inter";
     font-weight: 700;
-    background-color: #154273;
+    background-color: #00000000;
     padding: 11px;
     border: 0px;
-    transition: transform 0.2s ease;
+    border-radius: 50%; /* Make circular buttons possible */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    position: absolute; /* For buttons like the close button */
+    top: 10px; /* Position for close button */
+    right: 10px; /* Position for close button */
+    z-index: 10; /* Ensure it stays on top */
+    width: 40px; /* Default size for circular buttons */
+    height: 40px; /* Default size for circular buttons */
 }
 
 button:hover {
-    transform: translateY(-3px);
-    cursor: pointer;
+    transform: scale(1.1); /* Slightly enlarge on hover */
+    background-color: #0d2a4a;
+}
+
+button i {
+    font-size: 16px;
 }
 
 select {
@@ -176,33 +195,6 @@ body {
     display: flex;    
 }
 
-.close-button {
-    width: 40px;
-    height: 40px;
-    color: white;
-    background-color: #154273;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    margin: 0;
-    border-radius: 50%; /* Make it circular */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    z-index: 10; /* Ensure it stays on top */
-}
-
-.close-button:hover {
-    background-color: #0d2a4a;
-    transform: scale(1.1); /* Slightly enlarge on hover */
-}
-
-.close-button i {
-    font-size: 16px;
-}
-
 @media (min-width: 769px) and (max-width: 1385px) {
     h1 {
         font-size: 150%; /* Verklein de tekst op mobiele apparaten */
@@ -210,6 +202,10 @@ body {
 }
 
 @media (max-width: 768px) {
+    #myChart {
+        padding: 0;
+    }
+
     .container {
         flex-direction: column; /* Stack containers vertically */
         width: 100vw; /* Full width for mobile */
@@ -221,6 +217,7 @@ body {
     .container-right {
         width: 100%; /* Ensure both containers are the same width */
         height: auto; /* Each container takes half the viewport height */
+        min-height: 400px;
         padding: 10px; /* Add padding for better spacing */
         margin: 0px; /* Remove any extra margins */
         box-sizing: border-box; /* Ensure consistent sizing */

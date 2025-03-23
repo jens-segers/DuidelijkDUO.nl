@@ -24,12 +24,12 @@
             <!-- CONTAINER INFORMATION -->
             <img class="schoof-image" src="content/SchoofIllustratie.png" title="Dick Schoof">
             <h1>Welkom op DuidelijkDUO.nl</h1>
-            <p>Deze website bevat een aantal grafieken die inzichten geven in de openbare data gepubliceerd door de
-                Dienst Uitvoering Onderwijs (DUO).</p>
+            <p>Deze website bevat een aantal grafieken die inzichten geven in de openbare data gepubliceerd door deDienst Uitvoering Onderwijs (DUO).</p>
+            <p>Op dit moment werkt DuidelijkDUO.nl alleen met informatie gerelateerd aan het Hoger Beroeps Onderwijs (HBO).</p>
             <div class="controls">
                 <select id="dataTypeSelect" title="Selecteer datatype">
                     <option value="genderDistribution">Geslachtsverdeling</option>
-                    <option value="totalCount">Aantal</option>
+                    <option value="totalCount">Aantal studenten</option>
                 </select>
                 <!-- yearSelect is visible only when dataTypeSelect is 'genderDistribution' -->
                 <select id="yearSelect" title="Selecteer jaar">
@@ -53,7 +53,7 @@
         <div class="container-right">
             <button class="close-button"><i class="fas fa-expand"></i></button>
             <!-- CONTAINER GRAPHS -->
-            <canvas style="padding: 20px;" id="myChart"></canvas>
+            <canvas id="myChart"></canvas>
         </div>
     </div>
     <div class="background-image"></div>

@@ -134,39 +134,47 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function createGenderDistributionChart(location, education, year) {
-        const genders = { man: 0, vrouw: 0 };
+        // Filter de data op basis van locatie, opleiding en jaar
+        const filteredData = filterData(location, education, year);
 
-        // Filter the JSON data by the selected location and education
-        // Education maps to 'OPLEIDINGSNAAM ACTUEEL' and location to 'PROVINCIE' and 'GEMEENTENAAM'
-        var filteredData = filterData(location, education, year);
+        // Bereken het aantal mannen en vrouwen
+        const genderCounts = filteredData.reduce((acc, entry) => {
+            acc[entry.GESLACHT] = (acc[entry.GESLACHT] || 0) + 1;
+            return acc;
+        }, {});
 
-        filteredData.forEach(entry => {
-            if (
-                (!location || entry['OPLEIDINGSNAAM ACTUEEL'] === location || entry['PROVINCIE'] === location || entry['GEMEENTENAAM'] === location)
-                && entry['GESLACHT']
-            ) {
-                let value = entry[year];
-                genders[entry['GESLACHT']] += value;
-            }
-        });
+        const total = genderCounts['man'] + genderCounts['vrouw'];
+        const malePercentage = ((genderCounts['man'] / total) * 100).toFixed(1); // Percentage mannen
+        const femalePercentage = ((genderCounts['vrouw'] / total) * 100).toFixed(1); // Percentage vrouwen
 
+        // Maak de cirkeldiagram
         myChart = new Chart(chartCanvas, {
             type: 'pie',
             data: {
                 labels: ['Man', 'Vrouw'],
                 datasets: [{
                     label: 'Geslachtsverdeling',
-                    data: [genders['man'], genders['vrouw']],
+                    data: [genderCounts['man'], genderCounts['vrouw']],
                     backgroundColor: ['rgba(54, 162, 235, 0.4)', 'rgba(255, 99, 132, 0.4)'],
                     borderColor: ['rgb(54, 162, 235)', 'rgb(255, 99, 132)'],
                     borderWidth: 1
                 }]
             },
             options: {
+                responsive: true,
                 plugins: {
                     legend: {
                         labels: {
                             color: '#FFFFFF'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const value = context.raw;
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${context.label}: ${value} (${percentage}%)`;
+                            }
                         }
                     }
                 }
@@ -176,10 +184,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function createTotalCountChart(location, education) {
         const total = {};
+        const growthRates = [];
 
+        // Filter de data op basis van locatie en opleiding
         var filteredData = filterData(location, education);
 
-        // Collect the total count of students for each year in the data
+        // Verzamel het totale aantal studenten per jaar
         filteredData.forEach(entry => {
             for (const [key, value] of Object.entries(entry)) {
                 if (key.match(/^\d{4}$/)) {
@@ -188,26 +198,60 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
+        // Bereken de procentuele groei of afname per jaar
+        const years = Object.keys(total).sort(); // Sorteer de jaren op volgorde
+        for (let i = 1; i < years.length; i++) {
+            const currentYear = years[i];
+            const previousYear = years[i - 1];
+            const growthRate = ((total[currentYear] - total[previousYear]) / total[previousYear]) * 100;
+            growthRates.push(growthRate.toFixed(1)); // Rond af op 1 decimaal
+        }
+
+        // Maak de grafiek
         myChart = new Chart(chartCanvas, {
-            type: 'line', // Ensure this is a line chart
+            type: 'line',
             data: {
-                labels: Object.keys(total),
-                datasets: [{
-                    label: 'Totaal aantal studenten',
-                    data: Object.values(total),
-                    backgroundColor: 'rgba(255, 255, 255, 0.4)',
-                    borderColor: 'rgb(255, 255, 255)',
-                    borderWidth: 1,
-                    tension: 0.1 // Smooth the line
-                }]
+                labels: years,
+                datasets: [
+                    {
+                        label: 'Totaal aantal studenten',
+                        data: Object.values(total),
+                        backgroundColor: 'rgba(255, 255, 255, 0.4)',
+                        borderColor: 'rgb(255, 255, 255)',
+                        borderWidth: 1,
+                        tension: 0.1 // Smooth the line
+                    },
+                    {
+                        label: 'Procentuele groei/afname',
+                        data: [null, ...growthRates], // Voeg null toe voor het eerste jaar (geen groei)
+                        backgroundColor: 'rgba(54, 162, 235, 0.4)',
+                        borderColor: 'rgb(54, 162, 235)',
+                        borderWidth: 1,
+                        tension: 0.1, // Smooth the line
+                        yAxisID: 'y2' // Gebruik een tweede Y-as
+                    }
+                ]
             },
             options: {
-                responsive: true, // Ensure the chart resizes dynamically
+                responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         labels: {
                             color: '#FFFFFF'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const datasetLabel = context.dataset.label || '';
+                                const value = context.raw;
+                                if (context.dataset.yAxisID === 'y2') {
+                                    // Voeg een procentteken toe voor de procentuele groei/afname
+                                    return `${datasetLabel}: ${value}%`;
+                                }
+                                return `${datasetLabel}: ${value}`;
+                            }
                         }
                     }
                 },
@@ -226,6 +270,18 @@ document.addEventListener("DOMContentLoaded", function () {
                         },
                         grid: {
                             color: '#FFFFFF'
+                        }
+                    },
+                    y2: {
+                        position: 'right', // Plaats de tweede Y-as aan de rechterkant
+                        ticks: {
+                            color: '#36A2EB',
+                            callback: function (value) {
+                                return value + '%'; // Voeg een procentteken toe aan de labels
+                            }
+                        },
+                        grid: {
+                            drawOnChartArea: false // Verberg de gridlijnen van de tweede Y-as
                         }
                     }
                 }
