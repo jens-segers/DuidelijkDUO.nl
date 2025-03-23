@@ -28,8 +28,10 @@
             <p>Op dit moment werkt DuidelijkDUO.nl alleen met informatie gerelateerd aan het Hoger Beroeps Onderwijs (HBO).</p>
             <div class="controls">
                 <select id="dataTypeSelect" title="Selecteer datatype">
-                    <option value="genderDistribution">Geslachtsverdeling</option>
-                    <option value="totalCount">Aantal studenten</option>
+                    <optgroup label="Datatype">
+                        <option value="genderDistribution">Geslachtsverdeling</option>
+                        <option value="totalCount">Aantal studenten</option>
+                    </optgroup>
                 </select>
                 <!-- yearSelect is visible only when dataTypeSelect is 'genderDistribution' -->
                 <select id="yearSelect" title="Selecteer jaar">
