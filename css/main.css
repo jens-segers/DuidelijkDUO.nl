@@ -1,6 +1,9 @@
 body {
     display: flex;
     margin: 0px;
+    font-family: "Inter", sans-serif;
+    font-weight: 400;
+    font-style: normal;
 }
 
 h1 {
@@ -12,14 +15,30 @@ h1 {
 }
 
 p {
-    font-family: "Inter", sans-serif;
-    font-weight: 400;
-    font-style: normal;
     margin: 0px;
 }
 
 a {
     color: #154273;
+}
+
+.links {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: white;
+    border-bottom: 1px solid #154273;
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: white;
+    border-bottom: 1px solid #154273;
 }
 
 button {
@@ -38,18 +57,26 @@ button:hover {
 }
 
 select {
-    font-family: "Inter";
     font-weight: 700;
     color: #154273;
     background-color: white;
     padding: 10px;
     border: 1px solid #154273;
     transition: transform 0.2s ease;
+    width: min(98%, 200px);
+    margin: .2rem;
+    border-radius: 5px;
+    box-sizing: border-box;
+    flex-grow: 1;
 }
 
 select:hover {
     transform: translateY(-3px);
     cursor: pointer;
+}
+
+.hidden {
+    display: none;
 }
 
 body {

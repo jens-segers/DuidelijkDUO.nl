@@ -1,172 +1,161 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     console.log("DOM is loaded and custom Script is running");
 
     var body = document.body;
-    var focusModeButton = document.getElementById('focusModeButton');
-    var ChartCanvas = document.getElementById('myChart');
-    var chartSelect = document.getElementById('chartSelect');
-    const fullscreenButton = document.querySelector('.close-button'); // Renamed for clarity
+    var chartCanvas = document.getElementById('myChart');
+    var dataTypeSelect = document.getElementById('dataTypeSelect');
+    var locationSelect = document.getElementById('locationSelect');
+    var educationSelect = document.getElementById('educationSelect');
+    var yearSelect = document.getElementById('yearSelect');
+
+    const fullscreenButton = document.querySelector('.close-button');
 
     let jsonData;
     let myChart;
 
     // Laad de JSON data
-    fetch('/data/duo_ingeschrevenhbo_2024.json')
+    fetch('data/duo_ingeschrevenhbo_2024.json')
         .then(response => response.json())
         .then(data => {
-            jsonData = data;
-            loadChart('totalPerYear'); // standaard grafiek
+            jsonData = data.map(entry => {
+                // Convert properties whose name looks like a year (four digits) and value is a string to a number.
+                // This sets values like "<5" to 0.
+                for (const [key, value] of Object.entries(entry)) {
+                    if (key.match(/^\d{4}$/) && typeof value === 'string') {
+                        entry[key] = parseInt(value) || 0;
+                    }
+                }
+                return entry;
+            });
+            populateFilterOptions(); // Dynamically populate filter options
+            loadChart(dataTypeSelect.value); // Default chart
         });
+
+    function populateFilterOptions() {
+        const locations = {
+            Provincie: new Set(),
+            Gemeente: new Set(),
+        };
+        const educations = {
+            Opleiding: new Set()
+        };
+        const years = {
+            Jaar: new Set()
+        };
+
+        jsonData.forEach(entry => {
+            if (entry['PROVINCIE']) locations.Provincie.add(entry['PROVINCIE']);
+            if (entry['GEMEENTENAAM'] && entry['GEMEENTENAAM'].trim() !== '') locations.Gemeente.add(entry['GEMEENTENAAM']); // Ensure valid municipalities
+            if (entry['OPLEIDINGSNAAM ACTUEEL']) educations.Opleiding.add(entry['OPLEIDINGSNAAM ACTUEEL']);
+            for (const [key, value] of Object.entries(entry)) {
+                if (key.match(/^\d{4}$/)) years.Jaar.add(key);
+            }
+        });
+
+        // Create a pull-down menu for each location. The keys of the locations appeaar as an Option group with the values as options.
+        populateSelectList(locations, locationSelect, "Alle locaties");
+        populateSelectList(educations, educationSelect, "Alle opleidingen");
+        populateSelectList(years, yearSelect);
+
+        // Hide the year select if dataTypeSelect is not 'genderDistribution'
+        // by adding CSS class 'hidden' to the element
+        toggleVisibility();
+    }
+
+    function toggleVisibility() {
+        yearSelect.classList.toggle('hidden', dataTypeSelect.value !== 'genderDistribution');
+    }
+
+    /*
+     * Populate a select list with options from a data object.
+     * The data is a map with keys as group names and values as arrays of options.
+     * For each key an option group is added to the select list.
+     * The selectList is a select element to populate with the data.
+     */
+    function populateSelectList(data, selectList, noneOption) {
+        if (noneOption !== undefined) {
+            // Add an option to select nothing
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = noneOption;
+            selectList.appendChild(opt);
+        }
+
+        for (const [group, options] of Object.entries(data)) {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = group;
+            selectList.appendChild(optgroup);
+
+            Array.from(options)
+                .sort((a, b) => a.localeCompare(b))
+                .forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option;
+                    opt.textContent = option;
+                    optgroup.appendChild(opt);
+                });
+        }
+    }
 
     function loadChart(type) {
         if (myChart) myChart.destroy();
 
         switch (type) {
-            case 'totalPerYear':
-                createTotalPerYearChart();
-                break;
-            case 'studentsPerProvince':
-                createStudentsPerProvinceChart();
-                break;
             case 'genderDistribution':
-                createGenderDistributionChart();
+                createGenderDistributionChart(locationSelect.value, educationSelect.value, yearSelect.value);
                 break;
-            case 'specificCourseTrend':
-                createSpecificCourseTrendChart();
-                break;
-            case 'educationForm':
-                createEducationFormChart();
+            case 'totalCount':
+                createTotalCountChart(locationSelect.value, educationSelect.value);
                 break;
             default:
                 console.log('Unknown chart type');
         }
     }
 
-    // 1. Totaal aantal inschrijvingen per jaar
-    function createTotalPerYearChart() {
-        const years = ['2020', '2021', '2022', '2023', '2024'];
-        const totals = { '2020': 0, '2021': 0, '2022': 0, '2023': 0, '2024': 0 };
-
-        jsonData.forEach(entry => {
-            years.forEach(year => {
-                let value = entry[year];
-                if (typeof value === 'string' && value.includes('<')) value = 0;
-                totals[year] += parseInt(value) || 0;
-            });
-        });
-
-        myChart = new Chart(ChartCanvas, {
-            type: 'line',
-            data: {
-                labels: years,
-                datasets: [{
-                    label: 'Totaal aantal inschrijvingen',
-                    data: years.map(y => totals[y]),
-                    backgroundColor: 'rgba(255, 255, 255, 0.4)',
-                    borderColor: 'rgb(255, 255, 255)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#FFFFFF' // Legenda tekst wit
-                        }
+    function filterData(location, education, year) {
+        return jsonData
+            .filter(entry => {
+                return (!education || entry['OPLEIDINGSNAAM ACTUEEL'] === education)
+                    && (!location || entry['PROVINCIE'] === location || entry['GEMEENTENAAM'] === location);
+            })
+            // Remove year properties that are not equal to the selected year
+            .map(entry => {
+                if (year) {
+                    const newEntry = { ...entry };
+                    for (const key of Object.keys(entry)) {
+                        if (!key.match(/^\d{4}$/) || key === year) continue;
+                        delete newEntry[key];
                     }
-                },
-                scales: {
-                    x: {
-                        ticks: {
-                            color: '#FFFFFF' // X-as tekst wit
-                        },
-                        grid: {
-                            color: '#FFFFFF' // Optioneel: gridkleur donkerder (mooier op donkere achtergrond)
-                        }
-                    },
-                    y: {
-                        ticks: {
-                            color: '#FFFFFF' // Y-as tekst wit
-                        },
-                        grid: {
-                            color: '#FFFFFF'
-                        }
-                    }
+                    return newEntry;
                 }
+                return entry;
             }
-        });
+            );
     }
 
-    // 2. Aantal studenten per provincie (2024)
-    function createStudentsPerProvinceChart() {
-        const provinceTotals = {};
-
-        jsonData.forEach(entry => {
-            const provincie = entry.PROVINCIE;
-            let value = entry['2024'];
-            if (typeof value === 'string' && value.includes('<')) value = 0;
-            provinceTotals[provincie] = (provinceTotals[provincie] || 0) + parseInt(value) || 0;
-        });
-
-        myChart = new Chart(ChartCanvas, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(provinceTotals),
-                datasets: [{
-                    label: 'Aantal studenten in 2024',
-                    data: Object.values(provinceTotals),
-                    backgroundColor: 'rgba(255, 255, 255, 0.4)',
-                    borderColor: 'rgb(255, 255, 255)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#FFFFFF' // Legenda tekst wit
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        ticks: {
-                            color: '#FFFFFF' // X-as tekst wit
-                        },
-                        grid: {
-                            color: '#FFFFFF' // Optioneel: gridkleur donkerder (mooier op donkere achtergrond)
-                        }
-                    },
-                    y: {
-                        ticks: {
-                            color: '#FFFFFF' // Y-as tekst wit
-                        },
-                        grid: {
-                            color: '#FFFFFF'
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // 3. Verdeling mannen/vrouwen binnen 'B Opleiding tot leraar Basisonderwijs'
-    function createGenderDistributionChart() {
+    function createGenderDistributionChart(location, education, year) {
         const genders = { man: 0, vrouw: 0 };
-        jsonData.forEach(entry => {
-            if (entry['OPLEIDINGSNAAM ACTUEEL'] === 'B Opleiding tot leraar Basisonderwijs') {
-                let value = entry['2024'];
-                if (typeof value === 'string' && value.includes('<')) value = 0;
-                genders[entry.GESLACHT] += parseInt(value) || 0;
+
+        // Filter the JSON data by the selected location and education
+        // Education maps to 'OPLEIDINGSNAAM ACTUEEL' and location to 'PROVINCIE' and 'GEMEENTENAAM'
+        var filteredData = filterData(location, education, year);
+
+        filteredData.forEach(entry => {
+            if (
+                (!location || entry['OPLEIDINGSNAAM ACTUEEL'] === location || entry['PROVINCIE'] === location || entry['GEMEENTENAAM'] === location)
+                && entry['GESLACHT']
+            ) {
+                let value = entry[year];
+                genders[entry['GESLACHT']] += value;
             }
         });
 
-        myChart = new Chart(ChartCanvas, {
+        myChart = new Chart(chartCanvas, {
             type: 'pie',
             data: {
                 labels: ['Man', 'Vrouw'],
                 datasets: [{
-                    label: 'Geslachtsverdeling (2024)',
+                    label: 'Geslachtsverdeling',
                     data: [genders['man'], genders['vrouw']],
                     backgroundColor: ['rgba(54, 162, 235, 0.4)', 'rgba(255, 99, 132, 0.4)'],
                     borderColor: ['rgb(54, 162, 235)', 'rgb(255, 99, 132)'],
@@ -177,62 +166,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 plugins: {
                     legend: {
                         labels: {
-                            color: '#FFFFFF' // Legenda tekst wit
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // 4. Ontwikkeling 'B Commerciële Economie' over de jaren
-    function createSpecificCourseTrendChart() {
-        const years = ['2020', '2021', '2022', '2023', '2024'];
-        const totals = { '2020': 0, '2021': 0, '2022': 0, '2023': 0, '2024': 0 };
-        jsonData.forEach(entry => {
-            if (entry['OPLEIDINGSNAAM ACTUEEL'] === 'B Commerciele Economie') {
-                years.forEach(year => {
-                    let value = entry[year];
-                    if (typeof value === 'string' && value.includes('<')) value = 0;
-                    totals[year] += parseInt(value) || 0;
-                });
-            }
-        });
-
-        myChart = new Chart(ChartCanvas, {
-            type: 'line',
-            data: {
-                labels: years,
-                datasets: [{
-                    label: 'B Commerciële Economie',
-                    data: years.map(y => totals[y]),
-                    backgroundColor: 'rgba(255, 255, 255, 0.4)',
-                    borderColor: 'rgb(255, 255, 255)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#FFFFFF' // Legenda tekst wit
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        ticks: {
-                            color: '#FFFFFF' // X-as tekst wit
-                        },
-                        grid: {
-                            color: '#FFFFFF' // Optioneel: gridkleur donkerder (mooier op donkere achtergrond)
-                        }
-                    },
-                    y: {
-                        ticks: {
-                            color: '#FFFFFF' // Y-as tekst wit
-                        },
-                        grid: {
                             color: '#FFFFFF'
                         }
                     }
@@ -241,24 +174,28 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // 5. Vergelijking voltijd/deeltijd studenten (2024)
-    function createEducationFormChart() {
-        const forms = { voltijd: 0, deeltijd: 0, duaal: 0 };
+    function createTotalCountChart(location, education) {
+        const total = {};
 
-        jsonData.forEach(entry => {
-            let value = entry['2024'];
-            if (typeof value === 'string' && value.includes('<')) value = 0;
-            const vorm = entry.OPLEIDINGSVORM.split(' ')[0]; // eerste woord (voltijd/deeltijd/duaal)
-            forms[vorm] += parseInt(value) || 0;
+        var filteredData = filterData(location, education);
+
+        // Collect the total count of students for each year in the data
+        filteredData.forEach(entry => {
+            for (const [key, value] of Object.entries(entry)) {
+                if (key.match(/^\d{4}$/)) {
+                    total[key] = (total[key] || 0) + value;
+                }
+            }
         });
 
-        myChart = new Chart(ChartCanvas, {
+
+        myChart = new Chart(chartCanvas, {
             type: 'bar',
             data: {
-                labels: Object.keys(forms),
+                labels: Object.keys(total),
                 datasets: [{
-                    label: 'Aantal studenten per opleidingsvorm (2024)',
-                    data: Object.values(forms),
+                    label: 'Totaal aantal studenten',
+                    data: Object.values(total),
                     backgroundColor: 'rgba(255, 255, 255, 0.4)',
                     borderColor: 'rgb(255, 255, 255)',
                     borderWidth: 1
@@ -268,25 +205,25 @@ document.addEventListener("DOMContentLoaded", function() {
                 plugins: {
                     legend: {
                         labels: {
-                            color: '#FFFFFF' // Legenda tekst wit
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        ticks: {
-                            color: '#FFFFFF' // X-as tekst wit
-                        },
-                        grid: {
-                            color: '#FFFFFF' // Optioneel: gridkleur donkerder (mooier op donkere achtergrond)
+                            color: '#FFFFFF'
                         }
                     },
-                    y: {
-                        ticks: {
-                            color: '#FFFFFF' // Y-as tekst wit
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#FFFFFF'
+                            },
+                            grid: {
+                                color: '#FFFFFF'
+                            }
                         },
-                        grid: {
-                            color: '#FFFFFF'
+                        y: {
+                            ticks: {
+                                color: '#FFFFFF'
+                            },
+                            grid: {
+                                color: '#FFFFFF'
+                            }
                         }
                     }
                 }
@@ -294,12 +231,25 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Event listener voor dropdown
-    chartSelect.addEventListener('change', function() {
+    // Event listeners for dropdowns
+    dataTypeSelect.addEventListener('change', function () {
+        toggleVisibility();
         loadChart(this.value);
     });
 
-    // Event listener voor fullscreen-button
+    yearSelect.addEventListener('change', function () {
+        loadChart(dataTypeSelect.value);
+    });
+
+    locationSelect.addEventListener('change', function () {
+        loadChart(dataTypeSelect.value);
+    });
+
+    educationSelect.addEventListener('change', function () {
+        loadChart(dataTypeSelect.value);
+    });
+
+    // Event listener for fullscreen-button
     fullscreenButton.addEventListener('click', toggleFocusMode);
 
     function toggleFocusMode() {
@@ -312,7 +262,6 @@ document.addEventListener("DOMContentLoaded", function() {
             fullscreenIcon.classList.remove('fa-expand');
             fullscreenIcon.classList.add('fa-compress');
 
-            // Collapse container-left and expand container-right
             containerLeft.classList.add('collapsed');
             containerLeft.classList.remove('expanded');
             containerRight.classList.add('expanded');
@@ -321,7 +270,6 @@ document.addEventListener("DOMContentLoaded", function() {
             fullscreenIcon.classList.remove('fa-compress');
             fullscreenIcon.classList.add('fa-expand');
 
-            // Reset container-left and container-right
             containerLeft.classList.add('expanded');
             containerLeft.classList.remove('collapsed');
             containerRight.classList.add('collapsed');

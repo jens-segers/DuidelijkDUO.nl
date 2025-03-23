@@ -8,8 +8,11 @@
     <link rel="icon" type="image/x-icon" href="content/favicon.ico">
     <link rel="stylesheet" href="css/main.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">   <!-- link to the Chart.js library -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
+    <!-- link to the Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -19,22 +22,33 @@
         <!-- CONTAINER LEFT -->
         <div class="container-left">
             <!-- CONTAINER INFORMATION -->
-            <img class="schoof-image" src="content/SchoofIllustratie.png">
-            <h1>Welkom op</h1>
-            <h1>DuidelijkDUO.nl</h1>
+            <img class="schoof-image" src="content/SchoofIllustratie.png" title="Dick Schoof">
+            <h1>Welkom op DuidelijkDUO.nl</h1>
             <hr>
-            <p>Deze website bevat een aantal grafieken die inzichten geven in de openbare data gepubliceerd door de Dienst Uitvoering Onderwijs (DUO).</p>
-            <br>
-            <select id="chartSelect" style="margin-bottom: 5px;">
-                <option value="totalPerYear">Totaal per jaar</option>
-                <option value="studentsPerProvince">Studenten per provincie</option>
-                <option value="genderDistribution">Geslachtsverdeling PABO</option>
-                <option value="specificCourseTrend">Commerciële Economie trend</option>
-                <option value="educationForm">Voltijd vs Deeltijd</option>
-            </select>
-            <br>
-            <br><br>
-            <p><b><a href="https://github.com/jens-segers/DuidelijkDUO.nl/blob/a229decbe5c94c78129b60b4d58b1bccd07e766f/disclaimer.md">🧑🏼‍⚖️ Disclaimer</a> <a href="https://github.com/jens-segers/DuidelijkDUO.nl/">🛠️ GitHub</a> <a href="mailto:info@jenssegers.nl">📩 Contact</a></b></p>
+            <p>Deze website bevat een aantal grafieken die inzichten geven in de openbare data gepubliceerd door de
+                Dienst Uitvoering Onderwijs (DUO).</p>
+            <div class="controls">
+                <select id="dataTypeSelect" title="Selecteer datatype">
+                    <option value="genderDistribution">Geslachtsverdeling</option>
+                    <option value="totalCount">Aantal</option>
+                </select>
+                <!-- yearSelect is visible only when dataTypeSelect is 'genderDistribution' -->
+                <select id="yearSelect" title="Selecteer jaar">
+                    <!-- Dynamically populated from the data -->
+                </select>
+                <select id="locationSelect" title="Selecteer locatie">
+                    <!-- Dynamically populated from the data -->
+                </select>
+                <select id="educationSelect" title="Selecteer opleiding">
+                    <!-- Dynamically populated from the data -->
+                </select>
+            </div>
+            <div class="links">
+                <a href="https://github.com/jens-segers/DuidelijkDUO.nl/blob/a229decbe5c94c78129b60b4d58b1bccd07e766f/disclaimer.md">🧑🏼‍⚖️
+                    Disclaimer</a>
+                <a href="https://github.com/jens-segers/DuidelijkDUO.nl/">🛠️ GitHub</a>
+                <a href="mailto:info@jenssegers.nl">📩 Contact</a>
+            </div>
         </div>
         <!-- CONTAINER RIGHT-->
         <div class="container-right">
@@ -44,6 +58,44 @@
         </div>
     </div>
     <div class="background-image"></div>
+    <!-- Code injected by live-server -->
+    <script>
+        // <![CDATA[  <-- For SVG support
+        if ('WebSocket' in window) {
+            (function () {
+                function refreshCSS() {
+                    var sheets = [].slice.call(document.getElementsByTagName("link"));
+                    var head = document.getElementsByTagName("head")[0];
+                    for (var i = 0; i < sheets.length; ++i) {
+                        var elem = sheets[i];
+                        var parent = elem.parentElement || head;
+                        parent.removeChild(elem);
+                        var rel = elem.rel;
+                        if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+                            var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+                            elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+                        }
+                        parent.appendChild(elem);
+                    }
+                }
+                var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+                var address = protocol + window.location.host + window.location.pathname + '/ws';
+                var socket = new WebSocket(address);
+                socket.onmessage = function (msg) {
+                    if (msg.data == 'reload') window.location.reload();
+                    else if (msg.data == 'refreshcss') refreshCSS();
+                };
+                if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+                    console.log('Live reload enabled.');
+                    sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+                }
+            })();
+        }
+        else {
+            console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+        }
+        // ]]>
+    </script>
 </body>
 <!-- link to the custom JS -->
 <script src="script.js"></script>
