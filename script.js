@@ -452,6 +452,7 @@ document.addEventListener("DOMContentLoaded", function () {
             { selector: '.container', styles: { borderColor: '#2a2a2a', transition: 'border-color 0.5s' } },
             { selector: 'a', styles: { color: '#ffffff', transition: 'color 0.5s' } },
             { selector: '.background-image', styles: { filter: 'brightness(0.7)', transition: 'filter 0.5s' } }, // Apply filter to the background image
+            { selector: 'button.reset-button', styles: { color: '#FFFFFF', transition: 'border-color 0.5s' } }
         ];
 
         elementsToStyle.forEach(({ selector, styles }) => {
