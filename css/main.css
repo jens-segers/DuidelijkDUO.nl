@@ -82,6 +82,7 @@ button i {
 }
 
 select {
+    appearance: none;
     font-family: "Inter";
     font-weight: 700;
     color: #154273;
