@@ -376,7 +376,7 @@ document.addEventListener("DOMContentLoaded", function () {
             { selector: 'body', styles: { backgroundColor: '#121212', color: '#ffffff', transition: 'background-color 0.5s, color 0.5s' } },
             { selector: '.container-left', styles: { backgroundColor: '#1e1e1e', transition: 'background-color 0.5s' } },
             { selector: '.container-right', styles: { backgroundColor: '#0c2744', transition: 'background-color 0.5s' } },
-            { selector: 'select', styles: { backgroundColor: '#2a2a2a', color: '#ffffff', borderColor: '#444444', transition: 'background-color 0.5s, color 0.5s, border-color 0.5s' } },
+            { selector: 'select', styles: { backgroundColor: '#2a2a2a', color: '#ffffff', borderColor: '#444444', backgroundImage: "url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23ffffff%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e')", transition: 'background-color 0.5s, color 0.5s, border-color 0.5s' }},
             { selector: '.container', styles: { borderColor: '#2a2a2a', transition: 'border-color 0.5s' } },
             { selector: 'a', styles: { color: '#ffffff', transition: 'color 0.5s' } },
             { selector: '.background-image', styles: { filter: 'brightness(0.7)', transition: 'filter 0.5s' } }, // Apply filter to the background image
@@ -409,7 +409,15 @@ document.addEventListener("DOMContentLoaded", function () {
             { selector: 'body', styles: { backgroundColor: isDarkMode ? '#121212' : '', color: isDarkMode ? '#ffffff' : '', transition: 'background-color 0.5s, color 0.5s' } },
             { selector: '.container-left', styles: { backgroundColor: isDarkMode ? '#1e1e1e' : '', transition: 'background-color 0.5s' } },
             { selector: '.container-right', styles: { backgroundColor: isDarkMode ? '#0c2744' : '', transition: 'background-color 0.5s' } },
-            { selector: 'select', styles: { backgroundColor: isDarkMode ? '#2a2a2a' : '', color: isDarkMode ? '#ffffff' : '', borderColor: isDarkMode ? '#444444' : '', transition: 'background-color 0.5s, color 0.5s, border-color 0.5s' } },
+            { selector: 'select', styles: { 
+                backgroundColor: isDarkMode ? '#2a2a2a' : '', 
+                color: isDarkMode ? '#ffffff' : '', 
+                borderColor: isDarkMode ? '#444444' : '', 
+                backgroundImage: isDarkMode 
+                    ? "url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23ffffff%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e')" 
+                    : "url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23003091%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e')", 
+                transition: 'background-color 0.5s, color 0.5s, border-color 0.5s' 
+            }},
             { selector: '.container', styles: { borderColor: isDarkMode ? '#2a2a2a' : '', transition: 'border-color 0.5s' } },
             { selector: 'a', styles: { color: isDarkMode ? '#ffffff' : '', transition: 'color 0.5s' } },
             { selector: '.background-image', styles: { filter: isDarkMode ? 'brightness(0.7)' : '', transition: 'filter 0.5s' } }, // Apply filter to the background image

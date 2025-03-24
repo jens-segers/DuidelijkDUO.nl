@@ -4,7 +4,7 @@ body {
     font-family: "Inter", sans-serif;
     font-weight: 400;
     font-style: normal;
-}
+} /* Closing brace added here */
 
 #myChart {
     padding: 30px;
@@ -49,7 +49,7 @@ button {
     font-family: "Inter";
     font-weight: 700;
     background-color: #00000000;
-    padding: 10px;
+    padding: 10px 0;
     border: 0px;
     border-radius: 50%; /* Make circular buttons possible */
     display: flex;
@@ -58,8 +58,8 @@ button {
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
     position: absolute; /* For buttons like the close button */
-    top: 10px; /* Position for close button */
     z-index: 10; /* Ensure it stays on top */
+    top: 10px;
     width: 40px; /* Default size for circular buttons */
     height: 40px; /* Default size for circular buttons */
 }
@@ -94,11 +94,17 @@ select {
     border-radius: 5px;
     box-sizing: border-box;
     flex-grow: 1;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23003091' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 1em;
 }
 
 select:hover {
-    transform: translateY(-3px);
+    border: 3px solid;
+    padding: 8px;
     cursor: pointer;
+    transition: border 0.3s ease, padding 0.3s ease; /* Add smooth transition */
 }
 
 .hidden {
@@ -236,5 +242,20 @@ body {
     .schoof-image {
         width: 30%; /* Smaller image for mobile */
         margin: 0; /* Remove extra margins */
+    }
+
+    button.light-dark-toggle {
+        width: 60px;
+        height: 60px;
+        position: fixed; /* Make the button float */
+        top: 10px;
+        right: 10px; /* Position it in the bottom-right corner */
+        z-index: 100; /* Ensure it is above other elements */
+        background-color: #0d2a4a; /* Use hover background color as default */
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+    }
+
+    button i {
+        font-size: 21px;
     }
 }
