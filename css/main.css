@@ -6,10 +6,6 @@ body {
     font-style: normal;
 } /* Closing brace added here */
 
-#myChart {
-    padding: 30px;
-}
-
 h1 {
     font-family: "Bebas Neue", sans-serif;
     font-weight: 400;
@@ -26,6 +22,11 @@ p {
 
 a {
     color: #154273;
+}
+
+#myChart {
+    padding-bottom: 20px;
+    max-height: 500px;
 }
 
 .links {
@@ -153,9 +154,15 @@ body {
 }
 
 .container-right {
+    display: flex;
+    box-sizing: border-box;
+    padding: 50px;
+    flex-direction: column; /* Stack elements vertically */
+    align-items: center; /* Center align elements horizontally */
+    justify-content: flex-start; /* Align elements to the top */
+    position: relative;
     height: 100%;
     width: 80%;
-    width: calc(80% - 5px); /* Adjust width to ensure even spacing */
     background-color: #154273;
     display: flex;
     justify-content: center;
@@ -173,10 +180,13 @@ body {
     transition: width 0.5s ease;
 }
 
-.container-right canvas {
-    width: 100%; /* Ensure the canvas fills the width of the container */
-    height: 100%; /* Ensure the canvas fills the height of the container */
-    box-sizing: border-box; /* Maintain consistent sizing */
+.container-right h2 {
+    color: white;
+    font-family: "Inter", sans-serif;
+    font-size: 24px;
+    text-align: center;
+    margin: 0;
+    padding: 20px 0;
 }
 
 .schoof-image{
@@ -213,10 +223,6 @@ body {
 }
 
 @media (max-width: 768px) {
-    #myChart {
-        padding: 0;
-    }
-
     .container {
         flex-direction: column; /* Stack containers vertically */
         width: 100vw; /* Full width for mobile */

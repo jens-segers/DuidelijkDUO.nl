@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const fullscreenButton = document.querySelector('.fullscreen-button');
     const lightDarkToggle = document.querySelector('.light-dark-toggle');
+    const chartTitle = document.getElementById('chartTitle');
 
     let jsonData;
     let myChart;
@@ -98,19 +99,38 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function updateChartTitle(text) {
+        const words = text.split(" ");
+        const midIndex = Math.ceil(words.length / 2);
+        const firstLine = words.slice(0, midIndex).join(" ");
+        const secondLine = words.slice(midIndex).join(" ");
+        chartTitle.innerHTML = `${firstLine}<br>${secondLine}`; // Add a line break for even distribution
+    }
+
     function loadChart(type) {
         if (myChart) myChart.destroy();
 
+        // Determine the chart title based on selected filters
+        const location = locationSelect.value || "alle locaties";
+        const education = educationSelect.value || "alle opleidingen";
+        const year = yearSelect.value || "alle jaren";
+
+        let titleText;
         switch (type) {
             case 'genderDistribution':
+                titleText = `Geslachtsverdeling in ${location} bij ${education} (${year})`;
                 createGenderDistributionChart(locationSelect.value, educationSelect.value, yearSelect.value);
                 break;
             case 'totalCount':
+                titleText = `Aantal studenten in ${location} bij ${education}`;
                 createTotalCountChart(locationSelect.value, educationSelect.value);
                 break;
             default:
+                titleText = 'Onbekende grafiek';
                 console.log('Unknown chart type');
         }
+
+        updateChartTitle(titleText); // Update the title with even word distribution
     }
 
     function filterData(location, education, year) {
@@ -166,6 +186,7 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
                 plugins: {
                     legend: {
                         labels: {
