@@ -493,6 +493,7 @@ document.addEventListener("DOMContentLoaded", function () {
             { selector: '.container', styles: { borderColor: isDarkMode ? '#2a2a2a' : '', transition: 'border-color 0.5s' } },
             { selector: 'a', styles: { color: isDarkMode ? '#ffffff' : '', transition: 'color 0.5s' } },
             { selector: '.background-image', styles: { filter: isDarkMode ? 'brightness(0.7)' : '', transition: 'filter 0.5s' } }, // Apply filter to the background image
+            { selector: 'button.reset-button', styles: { color: isDarkMode ? '#FFFFFF' : '', transition: 'border-color 0.5s' } }
         ];
 
         elementsToStyle.forEach(({ selector, styles }) => {
