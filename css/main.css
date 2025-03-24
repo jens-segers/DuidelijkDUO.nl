@@ -284,6 +284,7 @@ body {
     }
 
     button.reset-button {
+        color: white;
         right: 10px; /* Position next to the light-dark toggle */
     }
 
