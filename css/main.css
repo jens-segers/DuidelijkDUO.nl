@@ -262,15 +262,23 @@ body {
         margin: 0; /* Remove extra margins */
     }
 
-    button.light-dark-toggle {
+    button.light-dark-toggle,
+    button.reset-button {
         width: 60px;
         height: 60px;
         position: fixed; /* Make the button float */
         top: 10px;
-        right: 10px; /* Position it in the bottom-right corner */
         z-index: 100; /* Ensure it is above other elements */
         background-color: #0d2a4a; /* Use hover background color as default */
         box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+    }
+
+    button.light-dark-toggle {
+        right: 80px; /* Position in the top right corner */
+    }
+
+    button.reset-button {
+        right: 10px; /* Position next to the light-dark toggle */
     }
 
     button i {
