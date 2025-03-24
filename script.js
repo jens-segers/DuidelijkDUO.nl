@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const locations = {
             Provincie: new Set(),
             Gemeente: new Set(),
+            Scholen: new Set(), // Add a new category for schools
         };
         const educations = {
             Opleiding: new Set()
@@ -48,20 +49,63 @@ document.addEventListener("DOMContentLoaded", function () {
         jsonData.forEach(entry => {
             if (entry['PROVINCIE']) locations.Provincie.add(entry['PROVINCIE']);
             if (entry['GEMEENTENAAM'] && entry['GEMEENTENAAM'].trim() !== '') locations.Gemeente.add(entry['GEMEENTENAAM']); // Ensure valid municipalities
+            if (entry['INSTELLINGSNAAM ACTUEEL']) locations.Scholen.add(entry['INSTELLINGSNAAM ACTUEEL']); // Add schools to the Scholen category
             if (entry['OPLEIDINGSNAAM ACTUEEL']) educations.Opleiding.add(entry['OPLEIDINGSNAAM ACTUEEL']);
             for (const [key, value] of Object.entries(entry)) {
                 if (key.match(/^\d{4}$/)) years.Jaar.add(key);
             }
         });
 
-        // Create a pull-down menu for each location. The keys of the locations appeaar as an Option group with the values as options.
-        populateSelectList(locations, locationSelect, "Alle locaties");
-        populateSelectList(educations, educationSelect, "Alle opleidingen");
+        // Populate the dropdowns
+        updateLocationAndEducationOptions();
         populateSelectList(years, yearSelect);
-
-        // Hide the year select if dataTypeSelect is not 'genderDistribution'
-        // by adding CSS class 'hidden' to the element
         toggleVisibility();
+    }
+
+    function updateLocationAndEducationOptions() {
+        const selectedLocation = locationSelect.value;
+        const selectedEducation = educationSelect.value;
+
+        const filteredLocations = {
+            Provincie: new Set(),
+            Gemeente: new Set(),
+            Scholen: new Set(),
+        };
+        const filteredEducations = {
+            Opleiding: new Set()
+        };
+
+        jsonData.forEach(entry => {
+            const matchesLocation = !selectedLocation || 
+                entry['PROVINCIE'] === selectedLocation || 
+                entry['GEMEENTENAAM'] === selectedLocation || 
+                entry['INSTELLINGSNAAM ACTUEEL'] === selectedLocation;
+
+            const matchesEducation = !selectedEducation || 
+                entry['OPLEIDINGSNAAM ACTUEEL'] === selectedEducation;
+
+            // Always add all schools unless filtered by a specific education
+            if (!selectedEducation || matchesEducation) {
+                if (entry['PROVINCIE']) filteredLocations.Provincie.add(entry['PROVINCIE']);
+                if (entry['GEMEENTENAAM'] && entry['GEMEENTENAAM'].trim() !== '') filteredLocations.Gemeente.add(entry['GEMEENTENAAM']);
+                if (entry['INSTELLINGSNAAM ACTUEEL']) filteredLocations.Scholen.add(entry['INSTELLINGSNAAM ACTUEEL']);
+            }
+
+            // Add educations only if they match the selected location
+            if (matchesLocation) {
+                if (entry['OPLEIDINGSNAAM ACTUEEL']) filteredEducations.Opleiding.add(entry['OPLEIDINGSNAAM ACTUEEL']);
+            }
+        });
+
+        // Repopulate the dropdowns with filtered options
+        locationSelect.innerHTML = '';
+        educationSelect.innerHTML = '';
+        populateSelectList(filteredLocations, locationSelect, "Alle locaties");
+        populateSelectList(filteredEducations, educationSelect, "Alle opleidingen");
+
+        // Restore previously selected options
+        locationSelect.value = selectedLocation || '';
+        educationSelect.value = selectedEducation || '';
     }
 
     function toggleVisibility() {
@@ -136,8 +180,12 @@ document.addEventListener("DOMContentLoaded", function () {
     function filterData(location, education, year) {
         return jsonData
             .filter(entry => {
-                return (!education || entry['OPLEIDINGSNAAM ACTUEEL'] === education)
-                    && (!location || entry['PROVINCIE'] === location || entry['GEMEENTENAAM'] === location);
+                const isLocationMatch = !location || 
+                    entry['PROVINCIE'] === location || 
+                    entry['GEMEENTENAAM'] === location || 
+                    entry['INSTELLINGSNAAM ACTUEEL'] === location; // Match schools as well
+                const isEducationMatch = !education || entry['OPLEIDINGSNAAM ACTUEEL'] === education;
+                return isLocationMatch && isEducationMatch;
             })
             // Remove year properties that are not equal to the selected year
             .map(entry => {
@@ -150,8 +198,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     return newEntry;
                 }
                 return entry;
-            }
-            );
+            });
     }
 
     function createGenderDistributionChart(location, education, year) {
@@ -332,6 +379,10 @@ document.addEventListener("DOMContentLoaded", function () {
         loadChart(dataTypeSelect.value);
     });
 
+    // Event listeners to dynamically update dropdowns
+    locationSelect.addEventListener('change', updateLocationAndEducationOptions);
+    educationSelect.addEventListener('change', updateLocationAndEducationOptions);
+
     // Event listener for fullscreen-button
     fullscreenButton.addEventListener('click', toggleFocusMode);
 
@@ -449,5 +500,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 Object.assign(element.style, styles);
             });
         });
+    });
+
+    const resetButton = document.querySelector('.reset-button');
+
+    resetButton.addEventListener('click', function () {
+        // Reset all selects to their default values
+        locationSelect.value = ""; // Reset locationSelect to no selection
+        educationSelect.value = ""; // Reset educationSelect to no selection
+
+        // Repopulate the dropdowns to reflect the reset state
+        updateLocationAndEducationOptions();
+
+        // Reload the chart with the default data type
+        loadChart(dataTypeSelect.value);
     });
 });

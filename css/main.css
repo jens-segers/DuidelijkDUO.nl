@@ -47,8 +47,6 @@ a {
 
 button {
     color: white;
-    font-family: "Inter";
-    font-weight: 700;
     background-color: #00000000;
     padding: 10px 0;
     border: 0px;
@@ -58,11 +56,26 @@ button {
     align-items: center;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
-    position: absolute; /* For buttons like the close button */
     z-index: 10; /* Ensure it stays on top */
+}
+
+button.fullscreen-button,
+button.light-dark-toggle {
+    position: absolute;
     top: 10px;
     width: 40px; /* Default size for circular buttons */
     height: 40px; /* Default size for circular buttons */
+}
+
+button.fullscreen-button:hover,
+button.light-dark-toggle:hover {
+    background-color: #0d2a4a;
+}
+
+button.reset-button {
+    position: relative;
+    width: 25px;
+    height: 25px;
 }
 
 button.fullscreen-button {
@@ -75,7 +88,6 @@ button.light-dark-toggle {
 
 button:hover {
     transform: scale(1.1); /* Slightly enlarge on hover */
-    background-color: #0d2a4a;
 }
 
 button i {
@@ -91,7 +103,7 @@ select {
     border: 1px solid #154273;
     transition: transform 0.2s ease;
     width: 95%;
-    margin: .2rem;
+    margin: .2rem 0;
     border-radius: 5px;
     box-sizing: border-box;
     flex-grow: 1;
