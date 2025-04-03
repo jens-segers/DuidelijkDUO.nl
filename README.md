@@ -1,4 +1,4 @@
-# DuidelijkDUO.nl - Inzichten in openbare onderwijsdata
+# DuidelijkDUO.nl - Insights into public education data
 
 ### <a href="https://duidelijkduo.nl">📎 Visit website<a>
 ### <a href="https://github.com/jens-segers/DuidelijkDUO.nl/blob/a229decbe5c94c78129b60b4d58b1bccd07e766f/disclaimer.md">🧑🏼‍⚖️ Disclaimer</a>
