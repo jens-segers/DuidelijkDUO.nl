@@ -567,7 +567,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     resetButton.addEventListener('click', function () {
         // Reset all selects to their default values
-        dataTypeSelect.value = "genderDistribution"; // Default value for dataTypeSelect
         locationSelect.value = ""; // Reset locationSelect to no selection
         schoolSelect.value = ""; // Reset schoolSelect to no selection
         educationSelect.value = ""; // Reset educationSelect to no selection
