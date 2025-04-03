@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var locationSelect = document.getElementById('locationSelect');
     var educationSelect = document.getElementById('educationSelect');
     var yearSelect = document.getElementById('yearSelect');
+    var schoolSelect = document.getElementById('schoolSelect'); // New school select element
 
     const fullscreenButton = document.querySelector('.fullscreen-button');
     const lightDarkToggle = document.querySelector('.light-dark-toggle');
@@ -64,47 +65,55 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function updateLocationAndEducationOptions() {
         const selectedLocation = locationSelect.value;
+        const selectedSchool = schoolSelect.value;
         const selectedEducation = educationSelect.value;
 
         const filteredLocations = {
             Provincie: new Set(),
             Gemeente: new Set(),
-            Scholen: new Set(),
         };
-        const filteredEducations = {
-            Opleiding: new Set()
-        };
+        const filteredSchools = new Set();
+        const filteredEducations = new Set();
 
         jsonData.forEach(entry => {
             const matchesLocation = !selectedLocation || 
                 entry['PROVINCIE'] === selectedLocation || 
-                entry['GEMEENTENAAM'] === selectedLocation || 
-                entry['INSTELLINGSNAAM ACTUEEL'] === selectedLocation;
+                entry['GEMEENTENAAM'] === selectedLocation;
+
+            const matchesSchool = !selectedSchool || 
+                entry['INSTELLINGSNAAM ACTUEEL'] === selectedSchool;
 
             const matchesEducation = !selectedEducation || 
                 entry['OPLEIDINGSNAAM ACTUEEL'] === selectedEducation;
 
-            // Always add all schools unless filtered by a specific education
-            if (!selectedEducation || matchesEducation) {
+            // Populate locations if school and education match
+            if (matchesSchool && matchesEducation) {
                 if (entry['PROVINCIE']) filteredLocations.Provincie.add(entry['PROVINCIE']);
                 if (entry['GEMEENTENAAM'] && entry['GEMEENTENAAM'].trim() !== '') filteredLocations.Gemeente.add(entry['GEMEENTENAAM']);
-                if (entry['INSTELLINGSNAAM ACTUEEL']) filteredLocations.Scholen.add(entry['INSTELLINGSNAAM ACTUEEL']);
             }
 
-            // Add educations only if they match the selected location
-            if (matchesLocation) {
-                if (entry['OPLEIDINGSNAAM ACTUEEL']) filteredEducations.Opleiding.add(entry['OPLEIDINGSNAAM ACTUEEL']);
+            // Populate schools if location and education match
+            if (matchesLocation && matchesEducation) {
+                if (entry['INSTELLINGSNAAM ACTUEEL']) filteredSchools.add(entry['INSTELLINGSNAAM ACTUEEL']);
+            }
+
+            // Populate educations if location and school match
+            if (matchesLocation && matchesSchool) {
+                if (entry['OPLEIDINGSNAAM ACTUEEL']) filteredEducations.add(entry['OPLEIDINGSNAAM ACTUEEL']);
             }
         });
 
         // Repopulate the dropdowns with filtered options
         locationSelect.innerHTML = '';
+        schoolSelect.innerHTML = '';
         educationSelect.innerHTML = '';
         populateSelectList(filteredLocations, locationSelect, "Alle locaties");
-        populateSelectList(filteredEducations, educationSelect, "Alle opleidingen");
+        populateSelectList({ Scholen: filteredSchools }, schoolSelect, "Alle scholen");
+        populateSelectList({ Opleiding: filteredEducations }, educationSelect, "Alle opleidingen");
 
         // Restore previously selected options
         locationSelect.value = selectedLocation || '';
+        schoolSelect.value = selectedSchool || '';
         educationSelect.value = selectedEducation || '';
     }
 
@@ -156,18 +165,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Determine the chart title based on selected filters
         const location = locationSelect.value || "alle locaties";
+        const school = schoolSelect.value || "alle scholen";
         const education = educationSelect.value || "alle opleidingen";
         const year = yearSelect.value || "alle jaren";
 
         let titleText;
         switch (type) {
             case 'genderDistribution':
-                titleText = `Geslachtsverdeling in ${location} bij ${education} (${year})`;
-                createGenderDistributionChart(locationSelect.value, educationSelect.value, yearSelect.value);
+                if (education === "alle opleidingen") {
+                    titleText = `Geslachtsverdeling in ${location} bij ${school} (${year})`;
+                } else {
+                    titleText = `Geslachtsverdeling in ${location} bij ${school} voor opleiding "${education}" (${year})`;
+                }
+                createGenderDistributionChart(locationSelect.value, schoolSelect.value, educationSelect.value, yearSelect.value);
                 break;
             case 'totalCount':
-                titleText = `Aantal studenten in ${location} bij ${education}`;
-                createTotalCountChart(locationSelect.value, educationSelect.value);
+                if (education === "alle opleidingen") {
+                    titleText = `Aantal studenten in ${location} bij ${school}`;
+                } else {
+                    titleText = `Aantal studenten in ${location} bij ${school} voor opleiding "${education}"`;
+                }
+                createTotalCountChart(locationSelect.value, schoolSelect.value, educationSelect.value);
                 break;
             default:
                 titleText = 'Onbekende grafiek';
@@ -177,15 +195,15 @@ document.addEventListener("DOMContentLoaded", function () {
         updateChartTitle(titleText); // Update the title with even word distribution
     }
 
-    function filterData(location, education, year) {
+    function filterData(location, school, education, year) {
         return jsonData
             .filter(entry => {
                 const isLocationMatch = !location || 
                     entry['PROVINCIE'] === location || 
-                    entry['GEMEENTENAAM'] === location || 
-                    entry['INSTELLINGSNAAM ACTUEEL'] === location; // Match schools as well
+                    entry['GEMEENTENAAM'] === location;
+                const isSchoolMatch = !school || entry['INSTELLINGSNAAM ACTUEEL'] === school;
                 const isEducationMatch = !education || entry['OPLEIDINGSNAAM ACTUEEL'] === education;
-                return isLocationMatch && isEducationMatch;
+                return isLocationMatch && isSchoolMatch && isEducationMatch;
             })
             // Remove year properties that are not equal to the selected year
             .map(entry => {
@@ -201,9 +219,9 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    function createGenderDistributionChart(location, education, year) {
-        // Filter de data op basis van locatie, opleiding en jaar
-        const filteredData = filterData(location, education, year);
+    function createGenderDistributionChart(location, school, education, year) {
+        // Filter de data op basis van locatie, school, opleiding en jaar
+        const filteredData = filterData(location, school, education, year);
 
         // Bereken het aantal mannen en vrouwen
         const genderCounts = filteredData.reduce((acc, entry) => {
@@ -245,7 +263,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             label: function (context) {
                                 const value = context.raw;
                                 const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                return `${context.label}: ${value} (${percentage}%)`;
+                                // Format numbers with dots as thousand separators
+                                return `${context.label}: ${value.toLocaleString('nl-NL')} (${percentage}%)`;
                             }
                         }
                     }
@@ -254,12 +273,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function createTotalCountChart(location, education) {
+    function createTotalCountChart(location, school, education) {
         const total = {};
         const growthRates = [];
 
-        // Filter de data op basis van locatie en opleiding
-        var filteredData = filterData(location, education);
+        // Filter de data op basis van locatie, school en opleiding
+        var filteredData = filterData(location, school, education);
 
         // Verzamel het totale aantal studenten per jaar
         filteredData.forEach(entry => {
@@ -322,7 +341,8 @@ document.addEventListener("DOMContentLoaded", function () {
                                     // Voeg een procentteken toe voor de procentuele groei/afname
                                     return `${datasetLabel}: ${value}%`;
                                 }
-                                return `${datasetLabel}: ${value}`;
+                                // Format numbers with dots as thousand separators
+                                return `${datasetLabel}: ${value.toLocaleString('nl-NL')}`;
                             }
                         }
                     }
@@ -338,7 +358,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     },
                     y: {
                         ticks: {
-                            color: '#FFFFFF'
+                            color: '#FFFFFF',
+                            callback: function (value) {
+                                // Format numbers with dots as thousand separators
+                                return value.toLocaleString('nl-NL');
+                            }
                         },
                         grid: {
                             color: '#FFFFFF'
@@ -375,12 +399,17 @@ document.addEventListener("DOMContentLoaded", function () {
         loadChart(dataTypeSelect.value);
     });
 
+    schoolSelect.addEventListener('change', function () {
+        loadChart(dataTypeSelect.value);
+    });
+
     educationSelect.addEventListener('change', function () {
         loadChart(dataTypeSelect.value);
     });
 
     // Event listeners to dynamically update dropdowns
     locationSelect.addEventListener('change', updateLocationAndEducationOptions);
+    schoolSelect.addEventListener('change', updateLocationAndEducationOptions);
     educationSelect.addEventListener('change', updateLocationAndEducationOptions);
 
     // Event listener for fullscreen-button
@@ -508,7 +537,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     resetButton.addEventListener('click', function () {
         // Reset all selects to their default values
+        dataTypeSelect.value = "genderDistribution"; // Default value for dataTypeSelect
         locationSelect.value = ""; // Reset locationSelect to no selection
+        schoolSelect.value = ""; // Reset schoolSelect to no selection
         educationSelect.value = ""; // Reset educationSelect to no selection
 
         // Repopulate the dropdowns to reflect the reset state
