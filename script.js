@@ -74,6 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
         const filteredSchools = new Set();
         const filteredEducations = new Set();
+        const filteredYears = new Set();
 
         jsonData.forEach(entry => {
             const matchesLocation = !selectedLocation || 
@@ -86,39 +87,67 @@ document.addEventListener("DOMContentLoaded", function () {
             const matchesEducation = !selectedEducation || 
                 entry['OPLEIDINGSNAAM ACTUEEL'] === selectedEducation;
 
+            // Ensure schools are filtered based on the selected location
+            if (matchesLocation && matchesEducation) {
+                if (entry['INSTELLINGSNAAM ACTUEEL']) filteredSchools.add(entry['INSTELLINGSNAAM ACTUEEL']);
+            }
+
             // Populate locations if school and education match
             if (matchesSchool && matchesEducation) {
                 if (entry['PROVINCIE']) filteredLocations.Provincie.add(entry['PROVINCIE']);
                 if (entry['GEMEENTENAAM'] && entry['GEMEENTENAAM'].trim() !== '') filteredLocations.Gemeente.add(entry['GEMEENTENAAM']);
             }
 
-            // Populate schools if location and education match
-            if (matchesLocation && matchesEducation) {
-                if (entry['INSTELLINGSNAAM ACTUEEL']) filteredSchools.add(entry['INSTELLINGSNAAM ACTUEEL']);
-            }
-
             // Populate educations if location and school match
             if (matchesLocation && matchesSchool) {
                 if (entry['OPLEIDINGSNAAM ACTUEEL']) filteredEducations.add(entry['OPLEIDINGSNAAM ACTUEEL']);
             }
+
+            // Populate years if location, school, and education match
+            if (matchesLocation && matchesSchool && matchesEducation) {
+                Object.keys(entry).forEach(key => {
+                    if (key.match(/^\d{4}$/) && entry[key] > 0) filteredYears.add(key); // Only include years with data
+                });
+            }
         });
 
         // Repopulate the dropdowns with filtered options
-        locationSelect.innerHTML = '';
-        schoolSelect.innerHTML = '';
-        educationSelect.innerHTML = '';
         populateSelectList(filteredLocations, locationSelect, "Alle locaties");
         populateSelectList({ Scholen: filteredSchools }, schoolSelect, "Alle scholen");
         populateSelectList({ Opleiding: filteredEducations }, educationSelect, "Alle opleidingen");
+        populateSelectList({ Jaar: filteredYears }, yearSelect);
 
-        // Restore previously selected options
-        locationSelect.value = selectedLocation || '';
-        schoolSelect.value = selectedSchool || '';
-        educationSelect.value = selectedEducation || '';
+        // Restore previously selected options if they are still valid
+        if (!filteredLocations.Provincie.has(selectedLocation) && !filteredLocations.Gemeente.has(selectedLocation)) {
+            locationSelect.value = '';
+        } else {
+            locationSelect.value = selectedLocation;
+        }
+
+        if (!filteredSchools.has(selectedSchool)) {
+            schoolSelect.value = '';
+        } else {
+            schoolSelect.value = selectedSchool;
+        }
+
+        if (!filteredEducations.has(selectedEducation)) {
+            educationSelect.value = '';
+        } else {
+            educationSelect.value = selectedEducation;
+        }
+
+        if (!filteredYears.has(yearSelect.value)) {
+            yearSelect.value = '';
+        }
+
+        // Refresh the chart after filtering
+        loadChart(dataTypeSelect.value);
     }
 
     function toggleVisibility() {
-        yearSelect.classList.toggle('hidden', dataTypeSelect.value !== 'genderDistribution');
+        // Ensure the yearSelect dropdown is visible only when 'genderDistribution' is selected
+        const shouldShowYearSelect = dataTypeSelect.value === 'genderDistribution';
+        yearSelect.classList.toggle('hidden', !shouldShowYearSelect);
     }
 
     /*
@@ -128,8 +157,9 @@ document.addEventListener("DOMContentLoaded", function () {
      * The selectList is a select element to populate with the data.
      */
     function populateSelectList(data, selectList, noneOption) {
+        selectList.innerHTML = ''; // Clear existing options
         if (noneOption !== undefined) {
-            // Add an option to select nothing
+            // Add an option to select "Alle ..."
             const opt = document.createElement('option');
             opt.value = '';
             opt.textContent = noneOption;
@@ -387,7 +417,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Event listeners for dropdowns
     dataTypeSelect.addEventListener('change', function () {
-        toggleVisibility();
+        toggleVisibility(); // Ensure visibility is updated when the data type changes
         loadChart(this.value);
     });
 
