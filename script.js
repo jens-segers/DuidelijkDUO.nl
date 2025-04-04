@@ -17,6 +17,8 @@ document.addEventListener("DOMContentLoaded", function () {
     let jsonData;
     let myChart;
     let map; // Leaflet map instance
+    let rateLimitWarningShown = false; // Flag to ensure the warning is shown only once
+    let geoRefData; // Variable to store the georef JSON data
 
     // Laad de JSON data
     fetch('data/duo_ingeschrevenhbo_2024.json')
@@ -33,7 +35,22 @@ document.addEventListener("DOMContentLoaded", function () {
                 return entry;
             });
             populateFilterOptions(); // Dynamically populate filter options
-            loadChart(dataTypeSelect.value); // Default chart
+            loadChart('map'); // Set the map as the default chart
+        });
+
+    // Load the georef JSON data
+    fetch('data/nederland_gemeenten_centroids.json') // Updated file path
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            geoRefData = data; // Store the georef data
+        })
+        .catch(error => {
+            console.error("Failed to load georef data:", error);
         });
 
     function populateFilterOptions() {
@@ -429,23 +446,28 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    async function getCoordinates(city, province) {
-        const proxyUrl = "https://cors-anywhere.herokuapp.com/"; // Use a proxy to bypass CORS
-        const apiUrl = `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(city)}&state=${encodeURIComponent(province)}&country=Netherlands&format=json`;
-
-        try {
-            const response = await fetch(proxyUrl + apiUrl);
-            const data = await response.json();
-            if (data.length > 0) {
-                const { lat, lon } = data[0];
-                return [parseFloat(lat), parseFloat(lon)];
-            }
-        } catch (error) {
-            console.error(`Failed to fetch coordinates for ${city}, ${province}:`, error);
+    function getCoordinatesFromGeoRef(city, province) {
+        if (!geoRefData || geoRefData.length === 0) {
+            console.warn("Georef data not loaded yet or is empty.");
+            return null;
         }
 
-        console.warn(`Coordinates for ${city}, ${province} not found. Using default.`);
-        return [52.1, 5.2]; // Default coordinates
+        if (!city || !province) {
+            console.warn("City or province is undefined or null.");
+            return null;
+        }
+
+        const match = geoRefData.find(entry => 
+            entry.city.some(c => c.toLowerCase().trim() === city.toLowerCase().trim()) &&
+            entry.province.toLowerCase().trim() === province.toLowerCase().trim()
+        );
+
+        if (match) {
+            return [match.lat, match.lon];
+        } else {
+            console.warn(`Coordinates for ${city}, ${province} not found in georef data.`);
+            return null;
+        }
     }
 
     function createMap(location, school, education, year) {
@@ -454,31 +476,62 @@ document.addEventListener("DOMContentLoaded", function () {
         // Aggregate student counts by city and province
         const studentCounts = {};
         filteredData.forEach(entry => {
-            const city = entry['GEMEENTENAAM'] || 'Onbekend';
-            const province = entry['PROVINCIE'] || 'Onbekend';
+            const city = entry['GEMEENTENAAM']?.trim() || 'Onbekend'; // Ensure valid city names
+            const province = entry['PROVINCIE']?.trim() || 'Onbekend'; // Ensure valid province names
             const key = `${city}, ${province}`;
             const count = year ? entry[year] || 0 : 1;
-            studentCounts[key] = (studentCounts[key] || 0) + count;
+
+            if (!studentCounts[key]) {
+                studentCounts[key] = { total: 0, male: 0, female: 0 };
+            }
+
+            studentCounts[key].total += count;
+            if (entry.GESLACHT === 'man') {
+                studentCounts[key].male += count;
+            } else if (entry.GESLACHT === 'vrouw') {
+                studentCounts[key].female += count;
+            }
         });
+
+        // Determine the map tile layer based on the current theme
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        const tileLayerUrl = isDarkMode
+            ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+            : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        const tileLayerAttribution = isDarkMode
+            ? '&copy; <a href="https://carto.com/">CARTO</a> contributors'
+            : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
         // Initialize the map
         if (map) {
             map.remove(); // Remove the existing map instance
         }
         map = L.map('map').setView([52.1, 5.2], 7); // Centered on the Netherlands
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        L.tileLayer(tileLayerUrl, {
+            attribution: tileLayerAttribution
         }).addTo(map);
 
         // Add markers for each city/province
-        Object.entries(studentCounts).forEach(([location, count]) => {
+        Object.entries(studentCounts).forEach(([location, counts]) => {
             const [city, province] = location.split(', ');
-            getCoordinates(city, province).then(coordinates => {
+            if (city !== 'Onbekend' && province !== 'Onbekend') {
+                const coordinates = getCoordinatesFromGeoRef(city, province);
                 if (coordinates) {
+                    const total = counts.total;
+                    const male = counts.male;
+                    const female = counts.female;
+                    const malePercentage = total > 0 ? ((male / total) * 100).toFixed(1) : 0;
+                    const femalePercentage = total > 0 ? ((female / total) * 100).toFixed(1) : 0;
+
                     const marker = L.marker(coordinates).addTo(map);
-                    marker.bindPopup(`<b>${location}</b><br>Aantal studenten: ${count.toLocaleString('nl-NL')}`);
+                    marker.bindPopup(
+                        `<b>${location}</b><br>
+                        Totaal aantal studenten: ${total.toLocaleString('nl-NL')}<br><br>
+                        Mannen: ${male.toLocaleString('nl-NL')} (${malePercentage}%)<br>
+                        Vrouwen: ${female.toLocaleString('nl-NL')} (${femalePercentage}%)`
+                    );
                 }
-            });
+            }
         });
     }
 
@@ -628,6 +681,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 Object.assign(element.style, styles);
             });
         });
+
+        // Reload the map with the updated theme
+        if (map) {
+            const location = locationSelect.value || null;
+            const school = schoolSelect.value || null;
+            const education = educationSelect.value || null;
+            const year = yearSelect.value || null;
+            createMap(location, school, education, year);
+        }
     });
 
     const resetButton = document.querySelector('.reset-button');
