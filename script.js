@@ -165,7 +165,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function toggleVisibility() {
         const isMap = dataTypeSelect.value === 'map';
-        yearSelect.classList.toggle('hidden', false); // Always show yearSelect
+        const isTotalCount = dataTypeSelect.value === 'totalCount';
+        yearSelect.classList.toggle('hidden', isTotalCount); // Hide yearSelect for "Aantal studenten"
         locationSelect.classList.toggle('hidden', isMap);
         schoolSelect.classList.toggle('hidden', isMap);
         educationSelect.classList.toggle('hidden', isMap);
