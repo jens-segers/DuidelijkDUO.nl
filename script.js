@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var educationSelect = document.getElementById('educationSelect');
     var yearSelect = document.getElementById('yearSelect');
     var schoolSelect = document.getElementById('schoolSelect'); // New school select element
+    var mapElement = document.getElementById('map'); // Map element
 
     const fullscreenButton = document.querySelector('.fullscreen-button');
     const lightDarkToggle = document.querySelector('.light-dark-toggle');
@@ -15,6 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let jsonData;
     let myChart;
+    let map; // Leaflet map instance
 
     // Laad de JSON data
     fetch('data/duo_ingeschrevenhbo_2024.json')
@@ -145,9 +147,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function toggleVisibility() {
-        // Ensure the yearSelect dropdown is visible only when 'genderDistribution' is selected
-        const shouldShowYearSelect = dataTypeSelect.value === 'genderDistribution';
-        yearSelect.classList.toggle('hidden', !shouldShowYearSelect);
+        const isMap = dataTypeSelect.value === 'map';
+        yearSelect.classList.toggle('hidden', false); // Always show yearSelect
+        locationSelect.classList.toggle('hidden', isMap);
+        schoolSelect.classList.toggle('hidden', isMap);
+        educationSelect.classList.toggle('hidden', isMap);
+        mapElement.classList.toggle('hidden', !isMap);
+        chartCanvas.classList.toggle('hidden', isMap);
     }
 
     /*
@@ -192,6 +198,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function loadChart(type) {
         if (myChart) myChart.destroy();
+        if (map) {
+            map.remove(); // Remove the map if it exists
+            map = null;
+        }
 
         // Determine the chart title based on selected filters
         const location = locationSelect.value || "alle locaties";
@@ -216,6 +226,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     titleText = `Aantal studenten in ${location} bij ${school} voor opleiding "${education}"`;
                 }
                 createTotalCountChart(locationSelect.value, schoolSelect.value, educationSelect.value);
+                break;
+            case 'map':
+                titleText = `Aantal studenten per stad en provincie (${year})`;
+                createMap(locationSelect.value, schoolSelect.value, educationSelect.value, yearSelect.value);
                 break;
             default:
                 titleText = 'Onbekende grafiek';
@@ -412,6 +426,59 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
             }
+        });
+    }
+
+    async function getCoordinates(city, province) {
+        const proxyUrl = "https://cors-anywhere.herokuapp.com/"; // Use a proxy to bypass CORS
+        const apiUrl = `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(city)}&state=${encodeURIComponent(province)}&country=Netherlands&format=json`;
+
+        try {
+            const response = await fetch(proxyUrl + apiUrl);
+            const data = await response.json();
+            if (data.length > 0) {
+                const { lat, lon } = data[0];
+                return [parseFloat(lat), parseFloat(lon)];
+            }
+        } catch (error) {
+            console.error(`Failed to fetch coordinates for ${city}, ${province}:`, error);
+        }
+
+        console.warn(`Coordinates for ${city}, ${province} not found. Using default.`);
+        return [52.1, 5.2]; // Default coordinates
+    }
+
+    function createMap(location, school, education, year) {
+        const filteredData = filterData(location, school, education, year);
+
+        // Aggregate student counts by city and province
+        const studentCounts = {};
+        filteredData.forEach(entry => {
+            const city = entry['GEMEENTENAAM'] || 'Onbekend';
+            const province = entry['PROVINCIE'] || 'Onbekend';
+            const key = `${city}, ${province}`;
+            const count = year ? entry[year] || 0 : 1;
+            studentCounts[key] = (studentCounts[key] || 0) + count;
+        });
+
+        // Initialize the map
+        if (map) {
+            map.remove(); // Remove the existing map instance
+        }
+        map = L.map('map').setView([52.1, 5.2], 7); // Centered on the Netherlands
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Add markers for each city/province
+        Object.entries(studentCounts).forEach(([location, count]) => {
+            const [city, province] = location.split(', ');
+            getCoordinates(city, province).then(coordinates => {
+                if (coordinates) {
+                    const marker = L.marker(coordinates).addTo(map);
+                    marker.bindPopup(`<b>${location}</b><br>Aantal studenten: ${count.toLocaleString('nl-NL')}`);
+                }
+            });
         });
     }
 
