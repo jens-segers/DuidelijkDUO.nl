@@ -246,7 +246,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 createTotalCountChart(locationSelect.value, schoolSelect.value, educationSelect.value);
                 break;
             case 'map':
-                titleText = `Aantal studenten per stad en provincie (${year})`;
+                titleText = `Kaartweergave per gemeente met weergave van het aantal studenten en de geslachtsverdeling (${year})`;
                 createMap(locationSelect.value, schoolSelect.value, educationSelect.value, yearSelect.value);
                 break;
             default:
