@@ -166,12 +166,20 @@ document.addEventListener("DOMContentLoaded", function () {
     function toggleVisibility() {
         const isMap = dataTypeSelect.value === 'map';
         const isTotalCount = dataTypeSelect.value === 'totalCount';
+
         yearSelect.classList.toggle('hidden', isTotalCount); // Hide yearSelect for "Aantal studenten"
         locationSelect.classList.toggle('hidden', isMap);
         schoolSelect.classList.toggle('hidden', isMap);
         educationSelect.classList.toggle('hidden', isMap);
         mapElement.classList.toggle('hidden', !isMap);
         chartCanvas.classList.toggle('hidden', isMap);
+
+        // Reset selects to "Alle ..." when map is selected
+        if (isMap) {
+            locationSelect.value = '';
+            schoolSelect.value = '';
+            educationSelect.value = '';
+        }
     }
 
     /*
