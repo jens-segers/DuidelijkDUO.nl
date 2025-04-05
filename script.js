@@ -86,6 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const selectedLocation = locationSelect.value;
         const selectedSchool = schoolSelect.value;
         const selectedEducation = educationSelect.value;
+        const selectedYear = yearSelect.value; // Store the currently selected year
 
         const filteredLocations = {
             Provincie: new Set(),
@@ -134,7 +135,14 @@ document.addEventListener("DOMContentLoaded", function () {
         populateSelectList(filteredLocations, locationSelect, "Alle locaties");
         populateSelectList({ Scholen: filteredSchools }, schoolSelect, "Alle scholen");
         populateSelectList({ Opleiding: filteredEducations }, educationSelect, "Alle opleidingen");
-        populateSelectList({ Jaar: filteredYears }, yearSelect);
+
+        // Only refresh yearSelect if its options have changed
+        const currentYearOptions = Array.from(yearSelect.options).map(option => option.value);
+        const newYearOptions = Array.from(filteredYears).sort();
+        if (JSON.stringify(currentYearOptions) !== JSON.stringify(newYearOptions)) {
+            populateSelectList({ Jaar: filteredYears }, yearSelect);
+            yearSelect.value = selectedYear; // Restore the previously selected year if still valid
+        }
 
         // Restore previously selected options if they are still valid
         if (!filteredLocations.Provincie.has(selectedLocation) && !filteredLocations.Gemeente.has(selectedLocation)) {
